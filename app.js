@@ -8,10 +8,15 @@ app.use(express.urlencoded({ extended: true })); // for form data
 // Serve static files (like script.js)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'images')));
+app.use(express.static(path.join(__dirname, 'style')));
 
 // Serve HTML page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'formBasic.html'));
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'adminPanel.html'));
 });
 
 // API route
