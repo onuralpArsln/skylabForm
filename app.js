@@ -1,0 +1,25 @@
+const express = require('express');
+const path = require('path');
+const app = express();
+
+app.use(express.json()); // for parsing application/json
+app.use(express.urlencoded({ extended: true })); // for form data
+
+// Serve static files (like script.js)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve HTML page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'formBasic.html'));
+});
+
+// API route
+app.post('/api/data', (req, res) => {
+    console.log('Received:', req.body);
+    res.json({ message: 'Data received!', data: req.body });
+});
+
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});

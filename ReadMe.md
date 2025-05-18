@@ -1,2 +1,4 @@
 npm init -y
-npm install express mongoose bcryptjs jsonwebtoken dotenv cors
+npm install express mongodb helmet 
+
+node server.js
