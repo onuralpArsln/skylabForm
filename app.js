@@ -7,6 +7,7 @@ app.use(express.urlencoded({ extended: true })); // for form data
 
 // Serve static files (like script.js)
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'images')));
 
 // Serve HTML page
 app.get('/', (req, res) => {
