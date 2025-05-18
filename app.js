@@ -24,6 +24,10 @@ app.post('/api/data', (req, res) => {
     console.log('Received:', req.body);
     res.json({ message: 'Data received!', data: req.body });
 });
+app.post('/api/login', (req, res) => {
+    console.log('Received:', req.body);
+
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {
