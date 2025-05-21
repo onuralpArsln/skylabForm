@@ -96,7 +96,8 @@ app.post('/api/paymentplan', async (req, res) => {
                 kayitadi: kayitadi,
                 aySayisi: aySayisi,
                 aylikOdeme: aylikOdeme,
-                baslangicTarihi: baslangicTarihi
+                baslangicTarihi: baslangicTarihi,
+                formid: paymentId
             },
 
         ]);
