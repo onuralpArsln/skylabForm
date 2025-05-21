@@ -10,10 +10,33 @@
 
 <body>
     <div style="height: 100px;"></div>
+
     <h1>Admin Dashboard</h1>
+    <div class="formContainer">
+        <h2 id="hidePayment">Ödeme Planı Oluştur</h2>
+        <form id="odemeForm" style="max-width: 400px;">
+
+            <label for="aySayisi">Kayıt Adı</label><br>
+            <input type="text" id="kayitadi" name="kayitadi" required><br><br>
 
 
+            <label for="aySayisi">Kaç Ay:</label><br>
+            <input type="number" id="aySayisi" name="aySayisi" min="1" required><br><br>
 
+            <label for="aylikOdeme">Aylık Ödeme (₺):</label><br>
+            <input type="number" id="aylikOdeme" name="aylikOdeme" step="0.01" required><br><br>
+
+            <label for="baslangicTarihi">Başlangıç Tarihi:</label><br>
+            <input type="date" id="baslangicTarihi" name="baslangicTarihi" required><br><br>
+
+            <input type="submit" id="gonderButonu" value="Planı Oluştur">
+        </form>
+
+        <span id="yukleniyorAnimasyon" style="display: none;">⏳ Yükleniyor...</span>
+        <div id="linkSonucu" style="margin-top: 20px; font-weight: bold;"></div>
+    </div>
+    <!-- Dış script dosyasını çağır -->
+    <script src="/planCreate.js"></script>
 </body>
 
 </html>
