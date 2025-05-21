@@ -69,8 +69,18 @@ app.post('/api/paymentplan', async (req, res) => {
 
     console.log('Received:', req.body);
 
-    // Example logic: create a dynamic link with a mock ID
-    const paymentId = Math.floor(Math.random() * 1000000);
+    // get calur for currentdate
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed, so add 1
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+
+    const paymentId = `${year}${month}${day}${hours}${minutes}${seconds}`;
+
     // Dynamically build full URL using the current request
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const link = `${baseUrl}/payment/${paymentId}`;
