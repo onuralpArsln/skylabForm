@@ -8,20 +8,17 @@ document.getElementById("odemeForm").addEventListener("submit", async function (
     gonderButonu.disabled = true;
     yukleniyorAnimasyon.style.display = "inline-block";
 
-    const formData = {
-        aySayisi: document.getElementById("aySayisi").value,
-        aylikOdeme: document.getElementById("aylikOdeme").value,
-        baslangicTarihi: document.getElementById("baslangicTarihi").value,
-        kayitadi: document.getElementById("kayitadi").value
-    };
+    // get data
+    const kayitadi = document.getElementById("kayitadi").value;
+    const imageFile = document.getElementById("payPlan").files[0];
+    const formData = new FormData();
+    formData.append("kayitadi", kayitadi);
+    formData.append("payPlan", imageFile);
 
     try {
         const response = await fetch('/api/paymentplan', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
+            body: formData
         });
 
         const data = await response.json();
@@ -33,10 +30,8 @@ document.getElementById("odemeForm").addEventListener("submit", async function (
             document.getElementById("linkSonucu").textContent = "Bir link cevabı alınamadı.";
         }
     } catch (error) {
-        document.getElementById("linkSonucu").textContent =
-            "Bir hata oluştu: " + error.message;
+        document.getElementById("linkSonucu").textContent = "Bir hata oluştu: " + error.message;
     } finally {
-        // Butonu tekrar aktif et ve animasyonu gizle
         gonderButonu.disabled = false;
         yukleniyorAnimasyon.style.display = "none";
     }

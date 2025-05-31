@@ -3,6 +3,9 @@ const express = require('express');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 
+const multer = require('multer');
+const upload = multer();  // Multer memory storage (no disk storage)
+
 require('dotenv').config();
 const mongo_uri = process.env.MONGO_URI
 const userName = process.env.USER
@@ -76,45 +79,40 @@ app.post('/api/login', (req, res) => {
     }
 });
 
-app.post('/api/paymentplan', async (req, res) => {
-    const { aySayisi, aylikOdeme, baslangicTarihi, kayitadi } = req.body;
+app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
+    const { kayitadi } = req.body;
+    const file = req.file;
 
-    console.log('Received:', req.body);
+    console.log('Received:', { kayitadi });
+    console.log('Uploaded file:', file);
 
-    // get calur for currentdate
+    // Generate unique payment ID using timestamp
     const now = new Date();
+    const paymentId = now.toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
 
-    const year = now.getFullYear();
-    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed, so add 1
-    const day = now.getDate().toString().padStart(2, '0');
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    const seconds = now.getSeconds().toString().padStart(2, '0');
-
-    const paymentId = `${year}${month}${day}${hours}${minutes}${seconds}`;
-
-    // Dynamically build full URL using the current request
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const link = `${baseUrl}/payment/${paymentId}`;
 
-
     try {
         await client.connect();
-        const db = client.db("testDB"); // creates if not exists
+        const db = client.db("testDB");
         const users = db.collection("users");
 
-        const result = await users.insertMany([
-            {
-                kayitadi: kayitadi,
-                aySayisi: aySayisi,
-                aylikOdeme: aylikOdeme,
-                baslangicTarihi: baslangicTarihi,
-                formid: paymentId
-            },
+        // Store image buffer and mimetype in DB document
+        const imageData = file ? {
+            data: file.buffer,
+            contentType: file.mimetype,
+            originalName: file.originalname
+        } : null;
 
-        ]);
+        const result = await users.insertOne({
+            kayitadi: kayitadi,
+            formid: paymentId,
+            image: imageData,
+            createdAt: new Date()
+        });
 
-        console.log(`${result.insertedCount} documents inserted.`);
+        console.log(`1 document inserted.`);
     } catch (err) {
         console.error(err);
     } finally {
@@ -126,7 +124,6 @@ app.post('/api/paymentplan', async (req, res) => {
         link: link
     });
 });
-
 
 const PORT = 3000;
 app.listen(PORT, () => {
