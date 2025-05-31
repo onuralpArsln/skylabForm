@@ -25,12 +25,6 @@
                 placeholder="Enter email address" required />
         </div>
 
-        <!-- Password -->
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Enter password" required />
-        </div>
-
         <!-- Description -->
         <div class="form-group">
             <label for="description">Description</label>
@@ -58,27 +52,6 @@
             <div id="imagePreview" class="file-preview"></div>
         </div>
 
-        <!-- Gender Radio -->
-        <div class="form-group">
-            <label>Gender</label>
-            <div class="radio-group">
-                <div class="radio-item">
-                    <input type="radio" id="male" name="gender" value="male" <%=user.gender==='male' ? 'checked' : '' %>
-                    />
-                    <label for="male">Male</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" id="female" name="gender" value="female" <%=user.gender==='female' ? 'checked'
-                        : '' %> />
-                    <label for="female">Female</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" id="other" name="gender" value="other" <%=user.gender==='other' ? 'checked' : ''
-                        %> />
-                    <label for="other">Other</label>
-                </div>
-            </div>
-        </div>
 
         <!-- Interests Checkboxes -->
         <div class="form-group">
@@ -97,12 +70,6 @@
             </div>
         </div>
 
-        <!-- Age -->
-        <div class="form-group">
-            <label for="age">Age</label>
-            <input type="number" id="age" name="age" min="1" max="120" value="<%= user.age || '' %>"
-                placeholder="Enter your age" />
-        </div>
 
         <!-- Birth Date -->
         <div class="form-group">
