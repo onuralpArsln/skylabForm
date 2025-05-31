@@ -1,8 +1,9 @@
 body {
   font-family: Arial, sans-serif;
-  max-width: 600px;
+  max-width: 1200px;
+  width: 90vw;
   margin: 0 auto;
-  padding: 20px;
+  padding: 10px;
   background-color: #f5f5f5;
 }
 
@@ -13,8 +14,8 @@ h1 {
 }
 
 #dataForm {
-  background: white;
-  padding: 30px;
+  background: rgb(255, 255, 255);
+  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -151,7 +152,7 @@ button:hover {
 @media print {
   @page {
     size: A4;
-    margin: 20mm;
+    margin: 5mm;
   }
 }
 
