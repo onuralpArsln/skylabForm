@@ -1,9 +1,13 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express');
 const path = require('path');
-require('dotenv').config();
+const jwt = require('jsonwebtoken');
 
+require('dotenv').config();
 const mongo_uri = process.env.MONGO_URI
+const userName = process.env.USER
+const passWord = process.env.PASS
+const secretKey = process.env.KEY
 
 // create mongo client
 const client = new MongoClient(mongo_uri, {
@@ -27,7 +31,7 @@ app.use(express.static(path.join(__dirname, 'style')));
 app.use(express.static(path.join(__dirname, 'views')));
 
 // Serve HTML page
-app.get('/', (req, res) => {
+app.get('/form', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'formBasic.html'));
 });
 
@@ -35,8 +39,15 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'adminLogin.html'));
 });
 
-app.get('/dash', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'adminDash.html'));
+app.get('/', (req, res) => {
+
+    const authHeader = req.headers['authorization'];
+    const token = authHeader?.split(' ')[1];
+    jwt.verify(token, secretKey, (err, user) => {
+        if (err) return res.sendFile(path.join(__dirname, 'views', 'adminLogin.html'));
+        res.sendFile(path.join(__dirname, 'views', 'adminDash.html'));
+    });
+
 });
 
 // API route
@@ -54,11 +65,12 @@ app.post('/api/login', (req, res) => {
     }
 
     // Check credentials (dummy example)
-    if (username === "admin" && password === "test") {
+    if (username === userName && password === passWord) {
         // Generate token or set session cookie here
-
+        const payload = { username };
+        const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
         // Example: send back success response
-        return res.status(200).json({ message: "Giriş başarılı", token: "your_jwt_token_here" });
+        return res.status(200).json({ message: "Giriş başarılı", token });
     } else {
         return res.status(401).json({ message: "Giriş başarısız. Bilgileri kontrol edin." });
     }

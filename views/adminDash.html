@@ -14,20 +14,16 @@
     <h1>Admin Dashboard</h1>
     <div class="formContainer">
         <h2 id="hidePayment">Ödeme Planı Oluştur</h2>
-        <form id="odemeForm" style="max-width: 400px;">
+        <form id="odemeForm" style="max-width: 600px;display: flex;flex-direction: column;">
 
-            <label for="aySayisi">Kayıt Adı</label><br>
+            <label for="kayitadi">Kayıt Adı</label><br>
             <input type="text" id="kayitadi" name="kayitadi" required><br><br>
 
+            <label for="payPlan">Ödeme Planı</label>
+            <input type="file" id="payPlan" name="payPlan" accept="image/*" required />
 
-            <label for="aySayisi">Kaç Ay:</label><br>
-            <input type="number" id="aySayisi" name="aySayisi" min="1" required><br><br>
+            <img id="imagePreview" class="file-preview" />
 
-            <label for="aylikOdeme">Aylık Ödeme (₺):</label><br>
-            <input type="number" id="aylikOdeme" name="aylikOdeme" step="0.01" required><br><br>
-
-            <label for="baslangicTarihi">Başlangıç Tarihi:</label><br>
-            <input type="date" id="baslangicTarihi" name="baslangicTarihi" required><br><br>
 
             <input type="submit" id="gonderButonu" value="Planı Oluştur">
         </form>

@@ -40,3 +40,12 @@ label {
   border: solid 2px gray;
   padding: 15px;
 }
+
+#payPlan {
+  margin-top: 15px;
+  margin-bottom: 25px;
+}
+
+#imagePreview {
+  max-width: 100%;
+}
