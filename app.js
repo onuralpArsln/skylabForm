@@ -52,9 +52,9 @@ app.get('/form/:formid', async (req, res) => {
         }
 
         let imageSrc = null;
-        if (record.image && record.image.data) {
-            const base64Image = record.image.data.toString('base64');
-            imageSrc = `data:${record.image.contentType};base64,${base64Image}`;
+        if (record.paymentPlan && record.paymentPlan.data) {
+            const base64Image = record.paymentPlan.data.toString('base64');
+            imageSrc = `data:${record.paymentPlan.contentType};base64,${base64Image}`;
         }
 
         res.render('form', { user: record, imageSrc });
@@ -136,7 +136,7 @@ app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
         const result = await users.insertOne({
             kayitadi: kayitadi,
             formid: paymentId,
-            image: imageData,
+            paymentPlan: imageData,
             createdAt: new Date()
         });
 
