@@ -132,3 +132,40 @@ button:hover {
   max-height: 200px;
   border-radius: 4px;
 }
+
+.page-break {
+  page-break-before: always; /* Forces new page before this element */
+}
+
+@media print {
+  .page-break {
+    page-break-before: always;
+  }
+
+  .section {
+    page-break-inside: avoid; /* Prevents breaks at divs */
+    margin-bottom: 20px;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+}
+
+@media print {
+  body {
+    counter-reset: page;
+  }
+
+  .page-number::after {
+    counter-increment: page;
+    content: "Page " counter(page);
+    display: block;
+    text-align: right;
+    font-size: 12px;
+    margin-top: 20px;
+  }
+}
