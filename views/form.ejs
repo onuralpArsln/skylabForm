@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Skylab Academy</title>
+    <link rel="stylesheet" href="/form.css">
+    <link rel="icon" type="image/x-icon" href="/images/logo.ico">
+</head>
+
+<body>
+    <h1>Skylab Academy Mesafeli Satış Sözleşmesi</h1>
+
+    <form id="dataForm">
+        <!-- Username -->
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="<%= user.username || '' %>"
+                placeholder="Enter username" required />
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="<%= user.email || '' %>"
+                placeholder="Enter email address" required />
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter password" required />
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description"
+                placeholder="Enter description or comments..."><%= user.description || '' %></textarea>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="category" required>
+                <option value="">Select a category</option>
+                <option value="technology" <%=user.category==='technology' ? 'selected' : '' %>>Technology</option>
+                <option value="business" <%=user.category==='business' ? 'selected' : '' %>>Business</option>
+                <option value="education" <%=user.category==='education' ? 'selected' : '' %>>Education</option>
+                <option value="healthcare" <%=user.category==='healthcare' ? 'selected' : '' %>>Healthcare</option>
+                <option value="other" <%=user.category==='other' ? 'selected' : '' %>>Other</option>
+            </select>
+        </div>
+
+        <!-- Profile Image Upload -->
+        <div class="form-group">
+            <label for="profileImage">Profile Image</label>
+            <input type="file" id="profileImage" name="profileImage" accept="image/*" />
+            <div id="imagePreview" class="file-preview"></div>
+        </div>
+
+        <!-- Gender Radio -->
+        <div class="form-group">
+            <label>Gender</label>
+            <div class="radio-group">
+                <div class="radio-item">
+                    <input type="radio" id="male" name="gender" value="male" <%=user.gender==='male' ? 'checked' : '' %>
+                    />
+                    <label for="male">Male</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" id="female" name="gender" value="female" <%=user.gender==='female' ? 'checked'
+                        : '' %> />
+                    <label for="female">Female</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" id="other" name="gender" value="other" <%=user.gender==='other' ? 'checked' : ''
+                        %> />
+                    <label for="other">Other</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interests Checkboxes -->
+        <div class="form-group">
+            <label>Interests</label>
+            <div class="checkbox-group">
+                <% const interests=Array.isArray(user.interests) ? user.interests : []; %>
+                    <% ['sports', 'music' , 'reading' , 'travel' ].forEach(interest=> { %>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="<%= interest %>" name="interests" value="<%= interest %>"
+                                <%=interests.includes(interest) ? 'checked' : '' %> />
+                            <label for="<%= interest %>">
+                                <%= interest.charAt(0).toUpperCase() + interest.slice(1) %>
+                            </label>
+                        </div>
+                        <% }); %>
+            </div>
+        </div>
+
+        <!-- Age -->
+        <div class="form-group">
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" min="1" max="120" value="<%= user.age || '' %>"
+                placeholder="Enter your age" />
+        </div>
+
+        <!-- Birth Date -->
+        <div class="form-group">
+            <label for="birthdate">Birth Date</label>
+            <input type="date" id="birthdate" name="birthdate" value="<%= user.birthdate || '' %>" />
+        </div>
+
+        <!-- Phone Number -->
+        <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" value="<%= user.phone || '' %>"
+                placeholder="Enter phone number" />
+        </div>
+
+        <!-- Display image inside "paymentplan" div -->
+        <div id="paymentplan" class="form-group">
+            <label>Payment Plan Preview</label><br />
+            <% if (imageSrc) { %>
+                <img src="<%= imageSrc %>" alt="Profile Image" width="300" />
+                <% } else { %>
+                    <p>No image uploaded.</p>
+                    <% } %>
+        </div>
+
+        <button type="submit">Send</button>
+    </form>
+
+    <pre id="response"></pre>
+    <script src="/script.js"></script>
+</body>
+
+</html>

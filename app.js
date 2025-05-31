@@ -27,6 +27,9 @@ const app = express();
 // Middleware to parse JSON body
 app.use(express.json());
 
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
+
 // Serve static files (like script.js)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'images')));
@@ -44,14 +47,19 @@ app.get('/form/:formid', async (req, res) => {
 
         const record = await users.findOne({ formid });
 
-        if (!record || !record.image) {
-            return res.status(404).send('Image not found');
+        if (!record) {
+            return res.status(404).send('Form not found');
         }
 
-        res.set('Content-Type', record.image.contentType);
-        res.send(record.image.data.buffer); // Note: if using BSON Binary, use `.buffer`
+        let imageSrc = null;
+        if (record.image && record.image.data) {
+            const base64Image = record.image.data.toString('base64');
+            imageSrc = `data:${record.image.contentType};base64,${base64Image}`;
+        }
+
+        res.render('form', { user: record, imageSrc });
     } catch (err) {
-        console.error('Error retrieving image:', err);
+        console.error(err);
         res.status(500).send('Server error');
     } finally {
         await client.close();
