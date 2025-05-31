@@ -34,8 +34,28 @@ app.use(express.static(path.join(__dirname, 'style')));
 app.use(express.static(path.join(__dirname, 'views')));
 
 // Serve HTML page
-app.get('/form', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'formBasic.html'));
+app.get('/form/:formid', async (req, res) => {
+    const formid = req.params.formid;
+
+    try {
+        await client.connect();
+        const db = client.db("testDB");
+        const users = db.collection("users");
+
+        const record = await users.findOne({ formid });
+
+        if (!record || !record.image) {
+            return res.status(404).send('Image not found');
+        }
+
+        res.set('Content-Type', record.image.contentType);
+        res.send(record.image.data.buffer); // Note: if using BSON Binary, use `.buffer`
+    } catch (err) {
+        console.error('Error retrieving image:', err);
+        res.status(500).send('Server error');
+    } finally {
+        await client.close();
+    }
 });
 
 app.get('/login', (req, res) => {
@@ -91,7 +111,7 @@ app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
     const paymentId = now.toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
 
     const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const link = `${baseUrl}/payment/${paymentId}`;
+    const link = `${baseUrl}/form/${paymentId}`;
 
     try {
         await client.connect();
