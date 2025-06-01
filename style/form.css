@@ -129,12 +129,8 @@ button:hover {
   background: #f8f9fa;
   border-radius: 4px;
   display: none;
-}
-
-.file-preview img {
-  max-width: 200px;
+  max-width: 300px;
   max-height: 200px;
-  border-radius: 4px;
 }
 
 .page-break {
@@ -185,32 +181,11 @@ button:hover {
   max-width: 300px;
 }
 
-.kimlikDivi {
+.paymentPlandiv {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap; /* Mobilde alt alta gelsin */
-  width: 100%;
-
-  padding: 0px;
-  margin: 0px;
-}
-
-.kimlikFotoDivi {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
   align-items: center;
-  border: 1px solid red;
-  padding: 0px;
-  margin: 0px;
+  justify-content: center;
 }
-.kimlikFotoDivi img {
-  border: 1px green solid;
-  padding: 0px;
-  margin: 0px;
-  margin-top: -25px;
-}
-
 @media print {
   @page {
     size: A4;

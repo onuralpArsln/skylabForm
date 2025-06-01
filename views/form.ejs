@@ -320,35 +320,27 @@
 
         <div class="pageFour section">
 
-            <div class="kimlikDivi">
-                <div class="kimlikFotoDivi">
-                    <div class="form-group formBlock  ">
-                        <label for="kimlik">Kimlik Ön Yüz</label>
-                        <input type="file" id="kimlik" name="kimlik" accept="image/*" />
-                    </div>
-                    <img id="imagePreviewkimlik" class="file-preview" />
-                </div>
 
-                <div class="kimlikFotoDivi">
-                    <div class="form-group formBlock">
-                        <label for="kimlik2">Kimlik Arka Yüz</label>
-                        <input type="file" id="kimlik2" name="kimlik2" accept="image/*" />
-                    </div>
-                    <img id="imagePreviewkimlik2" class="file-preview" />
-                </div>
+
+            <div class="form-group formBlock  ">
+                <label for="kimlik">Kimlik Ön Yüz</label>
+                <input type="file" id="kimlik" name="kimlik" accept="image/*" />
+                <img id="imagePreviewkimlik" class="file-preview" />
+
+
+            </div>
+
+
+            <div class="form-group formBlock">
+                <label for="kimlik2">Kimlik Arka Yüz</label>
+                <input type="file" id="kimlik2" name="kimlik2" accept="image/*" />
+                <img id="imagePreviewkimlik2" class="file-preview" />
             </div>
 
 
 
-            <!-- Display image inside "paymentplan" div -->
-            <div id="paymentplan" class="form-group">
-                <label>Ödeme Planı</label><br />
-                <% if (imageSrc) { %>
-                    <img src="<%= imageSrc %>" alt="Profile Image" width="600" />
-                    <% } else { %>
-                        <p>Plan bulunamadı. Lütfen yetkili ile iletişime geçin.</p>
-                        <% } %>
-            </div>
+
+
 
             <div class="pageEnd">
                 <div> <img src="/kase.png" alt=""> </div>
@@ -367,7 +359,40 @@
 
         </div>
 
-        <button type="submit">İmzala</button>
+
+        <div class="pageFive section">
+
+            <div class="pageEnd">
+                <div> <img src="/kase.png" alt=""> </div>
+                <div class="user">
+                    <div class="nameDiv">
+                        <%= isim %>
+                    </div>
+                    <div class="tcnoimza"></div>
+                    <label>
+                        <input type="checkbox" name="terms" required>
+                        Şartları ve koşulları kabul ediyorum </label>
+                </div>
+
+
+            </div>
+
+            <!-- Display image inside "paymentplan" div -->
+            <div id="paymentplan" class="form-group">
+                <label>Ödeme Planı</label><br />
+                <div class="paymentPlandiv">
+                    <% if (imageSrc) { %>
+                        <img src="<%= imageSrc %>" alt="Profile Image" height="500" />
+                        <% } else { %>
+                            <p>Plan bulunamadı. Lütfen yetkili ile iletişime geçin.</p>
+                            <% } %>
+
+                </div>
+
+            </div>
+
+            <button type="submit">İmzala</button>
+        </div>
     </form>
 
     <pre id="response"></pre>
