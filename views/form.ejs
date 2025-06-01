@@ -111,12 +111,12 @@
 
             <div class="pageEnd">
                 <div> <img src="/kase.png" alt=""> </div>
-                <div>
-                    <div>
+                <div class="user">
+                    <div class="nameDiv">
                         <%= isim %>
                     </div>
                     <div class="tcnoimza"></div>
-                    <label style="width: 300px;">
+                    <label>
                         <input type="checkbox" name="terms" required>
                         Şartları ve koşulları kabul ediyorum </label>
                 </div>
@@ -212,14 +212,12 @@
 
             <div class="pageEnd">
                 <div> <img src="/kase.png" alt=""> </div>
-                <div>
-
-                    <div>
+                <div class="user">
+                    <div class="nameDiv">
                         <%= isim %>
                     </div>
                     <div class="tcnoimza"></div>
-
-                    <label style="width: 300px;">
+                    <label>
                         <input type="checkbox" name="terms" required>
                         Şartları ve koşulları kabul ediyorum </label>
                 </div>
@@ -302,12 +300,12 @@
 
             <div class="pageEnd">
                 <div> <img src="/kase.png" alt=""> </div>
-                <div>
-                    <div>
+                <div class="user">
+                    <div class="nameDiv">
                         <%= isim %>
                     </div>
                     <div class="tcnoimza"></div>
-                    <label style="width: 300px;">
+                    <label>
                         <input type="checkbox" name="terms" required>
                         Şartları ve koşulları kabul ediyorum </label>
                 </div>
@@ -315,27 +313,30 @@
 
             </div>
 
-
         </div>
 
         <div class="page-break"></div>
 
 
         <div class="pageFour section">
-            <div class="form-group formBlock  ">
-                <label for="kimlik">Kimlik Ön Yüz</label>
-                <input type="file" id="kimlik" name="kimlik" accept="image/*" />
-                <img id="imagePreviewkimlik" class="file-preview" />
+
+            <div class="kimlikDivi">
+                <div class="kimlikFotoDivi">
+                    <div class="form-group formBlock  ">
+                        <label for="kimlik">Kimlik Ön Yüz</label>
+                        <input type="file" id="kimlik" name="kimlik" accept="image/*" />
+                    </div>
+                    <img id="imagePreviewkimlik" class="file-preview" />
+                </div>
+
+                <div class="kimlikFotoDivi">
+                    <div class="form-group formBlock">
+                        <label for="kimlik2">Kimlik Arka Yüz</label>
+                        <input type="file" id="kimlik2" name="kimlik2" accept="image/*" />
+                    </div>
+                    <img id="imagePreviewkimlik2" class="file-preview" />
+                </div>
             </div>
-
-
-            <div class="form-group formBlock">
-                <label for="kimlik2">Kimlik Arka Yüz</label>
-                <input type="file" id="kimlik2" name="kimlik2" accept="image/*" />
-    
-                <img id="imagePreviewkimlik2" class="file-preview" />
-            </div>
-
 
 
 
@@ -349,6 +350,20 @@
                         <% } %>
             </div>
 
+            <div class="pageEnd">
+                <div> <img src="/kase.png" alt=""> </div>
+                <div class="user">
+                    <div class="nameDiv">
+                        <%= isim %>
+                    </div>
+                    <div class="tcnoimza"></div>
+                    <label>
+                        <input type="checkbox" name="terms" required>
+                        Şartları ve koşulları kabul ediyorum </label>
+                </div>
+
+
+            </div>
 
         </div>
 

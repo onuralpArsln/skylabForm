@@ -170,12 +170,38 @@ button:hover {
 }
 
 .pageEnd img {
-  max-width: 130px;
+  max-width: 250px;
   max-height: 130px;
 }
+
+.pageEnd .user {
+  width: 40%;
+}
+
+.pageEnd label {
+  width: 400px;
+}
 .file-preview {
-  max-width: 400px;
-  max-height: 300px;
+  max-width: 200px;
+  max-height: 500px;
+}
+
+.kimlikDivi {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  border: 1px blue solid;
+}
+
+.kimlikFotoDivi {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  align-items: center;
+  border: 1px solid red;
+}
+.kimlikFotoDivi img {
+  border: 1px green solid;
 }
 
 @media print {
