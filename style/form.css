@@ -29,6 +29,7 @@ label {
   margin-bottom: 5px;
   font-weight: bold;
   color: #555;
+  width: 150px;
 }
 
 input[type="text"],
@@ -41,7 +42,8 @@ textarea,
 select {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 0px solid #ddd;
+  border-bottom: 1px solid #ddd;
   border-radius: 4px;
   font-size: 16px;
   box-sizing: border-box;
@@ -148,6 +150,12 @@ button:hover {
 .frontPage img {
   max-width: 300px;
   max-height: 300px;
+}
+
+.formBlock {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 @media print {
