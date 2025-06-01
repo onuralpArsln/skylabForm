@@ -96,3 +96,51 @@ document.getElementById('tcno').addEventListener('input', function () {
         div.textContent = value;
     });
 });
+
+
+document.getElementById("kimlik").addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const img = document.getElementById("imagePreviewkimlik");
+            img.onload = function () {
+                if (img.naturalHeight > img.naturalWidth) {
+                    img.style.transform = "rotate(90deg)";
+                } else {
+                    img.style.transform = "none"; // Reset if not needed
+                }
+            };
+            img.src = e.target.result;
+            img.style.display = "block";
+        };
+
+        reader.readAsDataURL(file); // Read image as base64 URL
+    }
+});
+
+
+
+
+document.getElementById("kimlik2").addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const img = document.getElementById("imagePreviewkimlik2");
+            img.onload = function () {
+                if (img.naturalHeight > img.naturalWidth) {
+                    img.style.transform = "rotate(90deg)";
+                } else {
+                    img.style.transform = "none"; // Reset if not needed
+                }
+            };
+            img.src = e.target.result;
+            img.style.display = "block";
+        };
+
+        reader.readAsDataURL(file); // Read image as base64 URL
+    }
+});

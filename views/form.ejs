@@ -127,8 +127,6 @@
 
         </div>
 
-        <div class="page-break">
-        </div>
 
         <div class="section pageTwo">
 
@@ -215,10 +213,12 @@
             <div class="pageEnd">
                 <div> <img src="/kase.png" alt=""> </div>
                 <div>
+
                     <div>
                         <%= isim %>
                     </div>
                     <div class="tcnoimza"></div>
+
                     <label style="width: 300px;">
                         <input type="checkbox" name="terms" required>
                         Şartları ve koşulları kabul ediyorum </label>
@@ -298,47 +298,58 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="kimlik">Kimlik Ön Yüz</label>
-                <input type="file" id="kimlik" name="kimlik" accept="image/*" />
-                <div id="imagePreview" class="file-preview"></div>
+
+
+            <div class="pageEnd">
+                <div> <img src="/kase.png" alt=""> </div>
+                <div>
+                    <div>
+                        <%= isim %>
+                    </div>
+                    <div class="tcnoimza"></div>
+                    <label style="width: 300px;">
+                        <input type="checkbox" name="terms" required>
+                        Şartları ve koşulları kabul ediyorum </label>
+                </div>
+
+
             </div>
-
-            <div class="form-group">
-                <label for="kimlik2">Kimlik Arka Yüz</label>
-                <input type="file" id="kimlik2" name="kimlik2" accept="image/*" />
-                <div id="imagePreview" class="file-preview"></div>
-            </div>
-
-
 
 
         </div>
 
         <div class="page-break"></div>
-        <!-- Username -->
+
+
+        <div class="pageFour section">
+            <div class="form-group formBlock  ">
+                <label for="kimlik">Kimlik Ön Yüz</label>
+                <input type="file" id="kimlik" name="kimlik" accept="image/*" />
+                <img id="imagePreviewkimlik" class="file-preview" />
+            </div>
+
+
+            <div class="form-group formBlock">
+                <label for="kimlik2">Kimlik Arka Yüz</label>
+                <input type="file" id="kimlik2" name="kimlik2" accept="image/*" />
+    
+                <img id="imagePreviewkimlik2" class="file-preview" />
+            </div>
 
 
 
 
+            <!-- Display image inside "paymentplan" div -->
+            <div id="paymentplan" class="form-group">
+                <label>Ödeme Planı</label><br />
+                <% if (imageSrc) { %>
+                    <img src="<%= imageSrc %>" alt="Profile Image" width="600" />
+                    <% } else { %>
+                        <p>Plan bulunamadı. Lütfen yetkili ile iletişime geçin.</p>
+                        <% } %>
+            </div>
 
 
-
-
-
-        <!-- Profile Image Upload -->
-
-
-
-
-        <!-- Display image inside "paymentplan" div -->
-        <div id="paymentplan" class="form-group">
-            <label>Ödeme Planı</label><br />
-            <% if (imageSrc) { %>
-                <img src="<%= imageSrc %>" alt="Profile Image" width="300" />
-                <% } else { %>
-                    <p>Plan bulunamadı. Lütfen yetkili ile iletişime geçin.</p>
-                    <% } %>
         </div>
 
         <button type="submit">İmzala</button>
