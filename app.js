@@ -55,9 +55,13 @@ app.get('/form/:formid', async (req, res) => {
         if (record.paymentPlan && record.paymentPlan.data) {
             const base64Image = record.paymentPlan.data.toString('base64');
             imageSrc = `data:${record.paymentPlan.contentType};base64,${base64Image}`;
+
+            agreementNumber = formid;
+            isim = titleCase(record.kayitadi);
+
         }
 
-        res.render('form', { user: record, imageSrc });
+        res.render('form', { user: record, imageSrc, agreementNumber, isim });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -152,6 +156,17 @@ app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
         link: link
     });
 });
+
+
+function titleCase(str) {
+    return str
+        .toLowerCase()
+        .split(' ')
+        .filter(Boolean) // boşlukları temizler
+        .map(word => word[0].toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
 
 const PORT = 3000;
 app.listen(PORT, () => {

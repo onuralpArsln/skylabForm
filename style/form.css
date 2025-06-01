@@ -138,15 +138,16 @@ button:hover {
   page-break-before: always; /* Forces new page before this element */
 }
 
-@media print {
-  .page-break {
-    page-break-before: always;
-  }
-
-  .section {
-    page-break-inside: avoid; /* Prevents breaks at divs */
-    margin-bottom: 20px;
-  }
+.frontPage {
+  padding-top: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.frontPage img {
+  max-width: 300px;
+  max-height: 300px;
 }
 
 @media print {
@@ -154,9 +155,7 @@ button:hover {
     size: A4;
     margin: 5mm;
   }
-}
 
-@media print {
   body {
     counter-reset: page;
   }
@@ -168,5 +167,24 @@ button:hover {
     text-align: right;
     font-size: 12px;
     margin-top: 20px;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+
+  .centered-print {
+    margin-top: 27%;
+  }
+
+  .section {
+    page-break-inside: avoid; /* Prevents breaks at divs */
+    margin-bottom: 20px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+  }
+
+  #dataForm {
+    box-shadow: 0 0px 00px rgb(252, 250, 250);
   }
 }
