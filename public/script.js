@@ -144,3 +144,14 @@ document.getElementById("kimlik2").addEventListener("change", function () {
         reader.readAsDataURL(file); // Read image as base64 URL
     }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="terms"]');
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            const isChecked = this.checked;
+            checkboxes.forEach(cb => cb.checked = isChecked);
+        });
+    });
+});
