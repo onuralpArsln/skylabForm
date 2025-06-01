@@ -11,9 +11,11 @@ document.getElementById("odemeForm").addEventListener("submit", async function (
     // get data
     const kayitadi = document.getElementById("kayitadi").value;
     const imageFile = document.getElementById("payPlan").files[0];
+    const courseName = document.getElementById("course").value;
     const formData = new FormData();
     formData.append("kayitadi", kayitadi);
     formData.append("payPlan", imageFile);
+    formData.append("course", courseName);
 
     try {
         const response = await fetch('/api/paymentplan', {
@@ -56,3 +58,16 @@ document.getElementById("payPlan").addEventListener("change", function () {
         reader.readAsDataURL(file); // Read image as base64 URL
     }
 });
+
+document.getElementById('kayitadi').addEventListener('input', function () {
+    this.value = capitalizeWords(this.value.toLowerCase());
+});
+
+document.getElementById('course').addEventListener('input', function () {
+    this.value = capitalizeWords(this.value.toLowerCase());
+});
+
+
+function capitalizeWords(str) {
+    return str.replace(/\b\w/g, char => char.toUpperCase());
+}

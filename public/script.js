@@ -89,3 +89,11 @@ document.getElementById('username').addEventListener('input', function () {
 });
 
 
+document.getElementById('.tcno').addEventListener('input', function () {
+    const value = this.value;
+    const imzaDivler = document.querySelectorAll('.tcnoimza');
+
+    imzaDivler.forEach(div => {
+        div.textContent = value;
+    });
+});

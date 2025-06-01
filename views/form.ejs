@@ -24,7 +24,7 @@
         </p>
 
         <p style="margin-top: -5px; font-size: 20px;">
-            sözleşme Numarası
+            Sözleşme Numarası
         </p>
         <p style="margin-top: -15px; font-size: 30px;">
             <%= agreementNumber %>
@@ -39,10 +39,11 @@
     <form id="dataForm">
         <div class="section pageOne">
             <h3> 1. TARAFLAR</h3>
-            <div>İşbu Mesafeli Satış Sözleşmesi (“Sözleşme”), Skylab Academy Danışmanlık Eğitim ve Öğretim
-                Kurumları Limited Şirketi (bundan sonra “Akademi” olarak anılacaktır) ve “Akademi”'nin elektronik
-                ortamda sağlamış olduğu “Sözleşme” formunda bilgilerini beyan eden kişinin (bundan sonra
-                “Kursiyer” olarak anılacaktır) arasında elektronik ortamda akdedilmiştir. </div>
+            <div>İşbu Mesafeli Satış Sözleşmesi (<b>“Sözleşme”</b>), Skylab Academy Danışmanlık Eğitim ve Öğretim
+                Kurumları Limited Şirketi (bundan sonra “Akademi” olarak anılacaktır) ve <b>“Akademi”</b>'nin elektronik
+                ortamda sağlamış olduğu <b>“Sözleşme”</b> formunda bilgilerini beyan eden kişinin (bundan sonra
+                <b> “Kursiyer”</b> olarak anılacaktır) arasında elektronik ortamda akdedilmiştir.
+            </div>
 
             <h3> 2. SÖZLEŞMENİN KONUSU </h3>
             <div>İşbu sözleşme; <b>"Kursiyer"</b>'in, <b>"Akademi"</b>'nin mevcut eğitim programlarında seçtiği
@@ -107,6 +108,21 @@
                 içeriğinden ödün vermeden eğitim süresini yeniden belirleyebileceğini kabul eder.
             </div>
 
+
+            <div class="pageEnd">
+                <div> <img src="/kase.png" alt=""> </div>
+                <div>
+                    <div>
+                        <%= isim %>
+                    </div>
+                    <div class="tcnoimza"></div>
+                    <label style="width: 300px;">
+                        <input type="checkbox" name="terms" required>
+                        Şartları ve koşulları kabul ediyorum </label>
+                </div>
+
+
+            </div>
 
 
         </div>
@@ -196,7 +212,20 @@
                 nedenlerden dolayı <b>"Kursiyer"</b> ödemelerini aksatamaz. <br>
             </div>
 
+            <div class="pageEnd">
+                <div> <img src="/kase.png" alt=""> </div>
+                <div>
+                    <div>
+                        <%= isim %>
+                    </div>
+                    <div class="tcnoimza"></div>
+                    <label style="width: 300px;">
+                        <input type="checkbox" name="terms" required>
+                        Şartları ve koşulları kabul ediyorum </label>
+                </div>
 
+
+            </div>
 
         </div>
 
@@ -229,6 +258,13 @@
                     placeholder="Ad Soyad" required />
             </div>
 
+            <div class="form-group formBlock">
+                <label for="tcno">TC Kimlik Numarası</label>
+                <input type="text" id="tcno" name="tcno" placeholder="11 haneli TC Kimlik No" pattern="^[1-9][0-9]{10}$"
+                    maxlength="11" inputmode="numeric" required />
+            </div>
+
+
             <div class="form-group formBlock ">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" value="<%= user.email || '' %>"
@@ -241,81 +277,71 @@
                 <input type="date" id="birthdate" name="birthdate" value="<%= user.birthdate || '' %>" />
             </div>
 
+            <div class="form-group formBlock">
+                <label for="adres">Adres</label>
+                <textarea id="adres" name="adres" placeholder="Adres"><%= user.description || '' %></textarea>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group formBlock">
+                <label for="phone">Telefon Numarası</label>
+                <input type="tel" id="phone" name="phone" value="<%= user.phone || '' %>" placeholder="0505 555 55 55"
+                    pattern="[0-9]{11}" maxlength="11" required />
+            </div>
+
+
+
+            <div class="form-group formBlock">
+                <label for="course">Kurs</label>
+                <div id="course" name="course">
+                    <%= course %>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="kimlik">Kimlik Ön Yüz</label>
+                <input type="file" id="kimlik" name="kimlik" accept="image/*" />
+                <div id="imagePreview" class="file-preview"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="kimlik2">Kimlik Arka Yüz</label>
+                <input type="file" id="kimlik2" name="kimlik2" accept="image/*" />
+                <div id="imagePreview" class="file-preview"></div>
+            </div>
+
+
+
+
         </div>
 
         <div class="page-break"></div>
         <!-- Username -->
 
 
-        <!-- Email -->
 
 
-        <!-- Description -->
-        <div class="form-group">
-            <label for="description">Description</label>
-            <textarea id="description" name="description"
-                placeholder="Enter description or comments..."><%= user.description || '' %></textarea>
-        </div>
 
-        <!-- Category -->
-        <div class="form-group">
-            <label for="category">Category</label>
-            <select id="category" name="category" required>
-                <option value="">Select a category</option>
-                <option value="technology" <%=user.category==='technology' ? 'selected' : '' %>>Technology</option>
-                <option value="business" <%=user.category==='business' ? 'selected' : '' %>>Business</option>
-                <option value="education" <%=user.category==='education' ? 'selected' : '' %>>Education</option>
-                <option value="healthcare" <%=user.category==='healthcare' ? 'selected' : '' %>>Healthcare</option>
-                <option value="other" <%=user.category==='other' ? 'selected' : '' %>>Other</option>
-            </select>
-        </div>
+
+
+
 
         <!-- Profile Image Upload -->
-        <div class="form-group">
-            <label for="profileImage">Profile Image</label>
-            <input type="file" id="profileImage" name="profileImage" accept="image/*" />
-            <div id="imagePreview" class="file-preview"></div>
-        </div>
-
-
-        <!-- Interests Checkboxes -->
-        <div class="form-group">
-            <label>Interests</label>
-            <div class="checkbox-group">
-                <% const interests=Array.isArray(user.interests) ? user.interests : []; %>
-                    <% ['sports', 'music' , 'reading' , 'travel' ].forEach(interest=> { %>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="<%= interest %>" name="interests" value="<%= interest %>"
-                                <%=interests.includes(interest) ? 'checked' : '' %> />
-                            <label for="<%= interest %>">
-                                <%= interest.charAt(0).toUpperCase() + interest.slice(1) %>
-                            </label>
-                        </div>
-                        <% }); %>
-            </div>
-        </div>
 
 
 
-
-        <!-- Phone Number -->
-        <div class="form-group">
-            <label for="phone">Phone Number</label>
-            <input type="tel" id="phone" name="phone" value="<%= user.phone || '' %>"
-                placeholder="Enter phone number" />
-        </div>
 
         <!-- Display image inside "paymentplan" div -->
         <div id="paymentplan" class="form-group">
-            <label>Payment Plan Preview</label><br />
+            <label>Ödeme Planı</label><br />
             <% if (imageSrc) { %>
                 <img src="<%= imageSrc %>" alt="Profile Image" width="300" />
                 <% } else { %>
-                    <p>No image uploaded.</p>
+                    <p>Plan bulunamadı. Lütfen yetkili ile iletişime geçin.</p>
                     <% } %>
         </div>
 
-        <button type="submit">Send</button>
+        <button type="submit">İmzala</button>
     </form>
 
     <pre id="response"></pre>
@@ -324,4 +350,4 @@
 
 </html>
 
-<!-- http://localhost:3000/form/20250531202237  -->
+<!-- http://localhost:3000/form/20250601093526  -->

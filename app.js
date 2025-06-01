@@ -58,10 +58,11 @@ app.get('/form/:formid', async (req, res) => {
 
             agreementNumber = formid;
             isim = titleCase(record.kayitadi);
+            course = record.course
 
         }
 
-        res.render('form', { user: record, imageSrc, agreementNumber, isim });
+        res.render('form', { user: record, imageSrc, agreementNumber, isim, course });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -112,11 +113,11 @@ app.post('/api/login', (req, res) => {
 });
 
 app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
-    const { kayitadi } = req.body;
+    const { kayitadi, course } = req.body;
     const file = req.file;
 
-    console.log('Received:', { kayitadi });
-    console.log('Uploaded file:', file);
+    console.log('Body content:', req.body);
+
 
     // Generate unique payment ID using timestamp
     const now = new Date();
@@ -141,6 +142,7 @@ app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
             kayitadi: kayitadi,
             formid: paymentId,
             paymentPlan: imageData,
+            course: course,
             createdAt: new Date()
         });
 
