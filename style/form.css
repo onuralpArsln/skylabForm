@@ -55,7 +55,7 @@ textarea {
 }
 
 input[type="file"] {
-  width: 30%;
+  width: 60%;
   padding: 8px;
   padding-right: 35px;
   border: 2px dashed #ddd;
@@ -182,26 +182,33 @@ button:hover {
   width: 400px;
 }
 .file-preview {
-  max-width: 200px;
-  max-height: 500px;
+  max-width: 300px;
 }
 
 .kimlikDivi {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap; /* Mobilde alt alta gelsin */
   width: 100%;
-  border: 1px blue solid;
+
+  padding: 0px;
+  margin: 0px;
 }
 
 .kimlikFotoDivi {
   display: flex;
   flex-direction: column;
-  max-width: 100%;
+  flex: 1;
   align-items: center;
   border: 1px solid red;
+  padding: 0px;
+  margin: 0px;
 }
 .kimlikFotoDivi img {
   border: 1px green solid;
+  padding: 0px;
+  margin: 0px;
+  margin-top: -25px;
 }
 
 @media print {
