@@ -76,3 +76,16 @@ document.getElementById('dataForm').addEventListener('submit', async function (e
         alert('Network error occurred');
     }
 });
+
+
+
+
+function capitalizeWords(str) {
+    return str.replace(/\b\w/g, char => char.toUpperCase());
+}
+
+document.getElementById('username').addEventListener('input', function () {
+    this.value = capitalizeWords(this.value.toLowerCase());
+});
+
+
