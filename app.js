@@ -167,6 +167,23 @@ app.post('/api/sign', upload.fields([
     console.log('📝 Form Fields:', req.body);
     console.log('📎 Uploaded Files:', req.files);
 
+    const kimlikFront = req.files['kimlikFront'] ? req.files['kimlikFront'][0] : null;
+    const kimlikBack = req.files['kimlikBack'] ? req.files['kimlikBack'][0] : null;
+
+    const kimlikFrontImage = kimlikFront ? {
+        data: kimlikFront.buffer,
+        contentType: kimlikFront.mimetype,
+        originalName: kimlikFront.originalname
+    } : null;
+
+    const kimlikBackImage = kimlikBack ? {
+        data: kimlikBack.buffer,
+        contentType: kimlikBack.mimetype,
+        originalName: kimlikBack.originalname
+    } : null;
+
+
+
     try {
         await client.connect();
         const db = client.db("testDB");
@@ -183,7 +200,10 @@ app.post('/api/sign', upload.fields([
                     personMail: req.body.email,
                     personTC: req.body.tcno,
                     personAdres: req.body.adres,
-
+                    personBirthDate: req.body.birthdate,
+                    personPhone: req.body.phone,
+                    kimlikFront: kimlikFrontImage,
+                    kimlikBack: kimlikBackImage,
                     signedAt: new Date()
                 }
             },

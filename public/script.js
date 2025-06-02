@@ -13,7 +13,6 @@ document.getElementById('dataForm').addEventListener('submit', async function (e
     // Add all form fields to FormData
     formData.append('username', sanitizeInput(document.getElementById('username').value));
     formData.append('email', sanitizeInput(document.getElementById('email').value));
-    formData.append('password', sanitizeInput(document.getElementById('password').value));
     formData.append('adres', sanitizeInput(document.getElementById('description').value));
     formData.append('category', sanitizeInput(document.getElementById('category').value));
     formData.append('age', sanitizeInput(document.getElementById('age').value));
