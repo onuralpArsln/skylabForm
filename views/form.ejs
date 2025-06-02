@@ -266,7 +266,7 @@
             <div class="form-group formBlock ">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" value="<%= user.email || '' %>"
-                    placeholder="Enter email address" required />
+                    placeholder="Email adresinizi giriniz" required />
             </div>
 
             <!-- Birth Date -->
@@ -325,42 +325,23 @@
             <div class="form-group formBlock  ">
                 <label for="kimlik">Kimlik Ön Yüz</label>
                 <input type="file" id="kimlik" name="kimlik" accept="image/*" />
-                <img id="imagePreviewkimlik" class="file-preview" />
-
-
             </div>
+            <div class="kimlikfoto">
 
+                <img id="imagePreviewkimlik" class="file-preview" />
+            </div>
 
             <div class="form-group formBlock">
                 <label for="kimlik2">Kimlik Arka Yüz</label>
                 <input type="file" id="kimlik2" name="kimlik2" accept="image/*" />
+            </div>
+            <div class="kimlikfoto">
                 <img id="imagePreviewkimlik2" class="file-preview" />
-            </div>
-
-
-
-
-
-
-            <div class="pageEnd">
-                <div> <img src="/kase.png" alt=""> </div>
-                <div class="user">
-                    <div class="nameDiv">
-                        <%= isim %>
-                    </div>
-                    <div class="tcnoimza"></div>
-                    <label>
-                            <input type="checkbox" name="terms" required>
-                            Şartları ve koşulları kabul ediyorum </label>
-                </div>
-
 
             </div>
 
-        </div>
 
 
-        <div class="pageFive section">
 
             <div class="pageEnd">
                 <div> <img src="/kase.png" alt=""> </div>
@@ -377,6 +358,13 @@
 
             </div>
 
+        </div>
+
+        <div class="page-break"></div>
+
+        <div class="pageFive section">
+
+
             <!-- Display image inside "paymentplan" div -->
             <div id="paymentplan" class="form-group">
                 <label>Ödeme Planı</label><br />
@@ -389,9 +377,24 @@
 
                 </div>
 
+
+                <div class="pageEnd">
+                    <div> <img src="/kase.png" alt=""> </div>
+                    <div class="user">
+                        <div class="nameDiv">
+                            <%= isim %>
+                        </div>
+                        <div class="tcnoimza"></div>
+                        <label>
+                            <input type="checkbox" name="terms" required>
+                            Şartları ve koşulları kabul ediyorum </label>
+                    </div>
+
+
+                </div>
             </div>
 
-            <button type="submit">İmzala</button>
+            <button id="sign" type="submit">İmzala</button>
         </div>
     </form>
 

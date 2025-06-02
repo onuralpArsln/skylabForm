@@ -107,7 +107,8 @@ document.getElementById("kimlik").addEventListener("change", function () {
             const img = document.getElementById("imagePreviewkimlik");
             img.onload = function () {
                 if (img.naturalHeight > img.naturalWidth) {
-                    img.style.transform = "rotate(90deg)";
+                    // img.style.transform = "rotate(90deg)";
+                    img.style.transform = "none";
                 } else {
                     img.style.transform = "none"; // Reset if not needed
                 }
@@ -132,7 +133,8 @@ document.getElementById("kimlik2").addEventListener("change", function () {
             const img = document.getElementById("imagePreviewkimlik2");
             img.onload = function () {
                 if (img.naturalHeight > img.naturalWidth) {
-                    img.style.transform = "rotate(90deg)";
+                    // img.style.transform = "rotate(90deg)";
+                    img.style.transform = "none";
                 } else {
                     img.style.transform = "none"; // Reset if not needed
                 }
@@ -154,4 +156,52 @@ document.addEventListener('DOMContentLoaded', function () {
             checkboxes.forEach(cb => cb.checked = isChecked);
         });
     });
+});
+
+
+
+
+document.getElementById('dataForm').addEventListener('submit', async function (e) {
+    e.preventDefault(); // Prevent default form submission
+
+    const username = document.getElementById("username").value;
+    const tcno = document.getElementById("tcno").value;
+    const email = document.getElementById("email").value;
+    const birthdate = document.getElementById("birthdate").value;
+    const adres = document.getElementById("adres").value;
+    const phone = document.getElementById("phone").value;
+
+    // File inputs
+    const kimlikFront = document.getElementById("kimlik").files[0];
+    const kimlikBack = document.getElementById("kimlik2").files[0];
+
+
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("tcno", tcno);
+    formData.append("email", email);
+    formData.append("adres", adres);
+    formData.append("birthdate", birthdate);
+    formData.append("phone", phone);
+    formData.append("kimlikFront", kimlikFront);
+    formData.append("kimlikBack", kimlikBack);
+
+    const gonderButonu = document.getElementById("sign");
+    gonderButonu.disabled = true;
+
+    try {
+        const response = await fetch('/api/sign', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+    } catch (error) {
+        console.log("hata hata")
+    } finally {
+        gonderButonu.disabled = false;
+
+    }
+
 });

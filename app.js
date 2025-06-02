@@ -160,6 +160,19 @@ app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
 });
 
 
+app.post('/api/sign', upload.fields([
+    { name: 'kimlikFront', maxCount: 1 },
+    { name: 'kimlikBack', maxCount: 1 }
+]), (req, res) => {
+    console.log('📝 Form Fields:', req.body);
+    console.log('📎 Uploaded Files:', req.files);
+
+});
+
+
+
+
+
 function titleCase(str) {
     return str
         .toLowerCase()
