@@ -163,9 +163,41 @@ app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
 app.post('/api/sign', upload.fields([
     { name: 'kimlikFront', maxCount: 1 },
     { name: 'kimlikBack', maxCount: 1 }
-]), (req, res) => {
+]), async (req, res) => {
     console.log('📝 Form Fields:', req.body);
     console.log('📎 Uploaded Files:', req.files);
+
+    try {
+        await client.connect();
+        const db = client.db("testDB");
+        const users = db.collection("users");
+
+
+
+
+        const result = await users.updateOne(
+            { formid: req.body.agreementNumber }, // Filter condition
+            {
+                $set: {
+                    personName: req.body.username,
+                    personMail: req.body.email,
+                    personTC: req.body.tcno,
+                    personAdres: req.body.adres,
+
+                    signedAt: new Date()
+                }
+            },
+            { upsert: true } // optional: creates a new doc if none found
+        );
+
+        console.log("Update result:", result);
+    } catch (err) {
+        console.error("Database error:", err);
+    }
+
+
+
+
 
 });
 
