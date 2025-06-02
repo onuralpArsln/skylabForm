@@ -171,13 +171,15 @@ document.getElementById('dataForm').addEventListener('submit', async function (e
     const adres = document.getElementById("adres").value;
     const phone = document.getElementById("phone").value;
 
+
+
     // File inputs
     const kimlikFront = document.getElementById("kimlik").files[0];
     const kimlikBack = document.getElementById("kimlik2").files[0];
 
-
     const formData = new FormData();
     formData.append("username", username);
+    formData.append("agreementNumber", window.agreementNumber);
     formData.append("tcno", tcno);
     formData.append("email", email);
     formData.append("adres", adres);

@@ -404,4 +404,30 @@
 
 </html>
 
+
+<script>
+    // Make user data accessible to external script
+    window.agreementNumber = "<%= agreementNumber %>";
+    // Save form data to localStorage on change
+    document.querySelectorAll('#dataForm input, #dataForm textarea, #dataForm select').forEach(element => {
+        element.addEventListener('input', () => {
+            localStorage.setItem(element.name, element.value);
+        });
+    });
+
+    // Load saved form data on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('#dataForm input, #dataForm textarea, #dataForm select').forEach(element => {
+            const savedValue = localStorage.getItem(element.name);
+            if (savedValue !== null) {
+                if (element.type === 'checkbox') {
+                    element.checked = savedValue === 'true';
+                } else {
+                    element.value = savedValue;
+                }
+            }
+        });
+    });
+</script>
+
 <!-- http://localhost:3000/form/20250601093526  -->
