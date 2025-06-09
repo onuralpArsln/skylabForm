@@ -221,9 +221,59 @@ app.post('/api/sign', upload.fields([
 
 });
 
+// Authentication middleware
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader?.split(' ')[1];
 
+    if (!token) {
+        return res.status(401).json({ message: "Authentication token required" });
+    }
 
+    jwt.verify(token, secretKey, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: "Invalid or expired token" });
+        }
+        req.user = user;
+        next();
+    });
+};
 
+// Protected endpoint to get signed documents
+app.get('/api/signed-documents', authenticateToken, async (req, res) => {
+    try {
+        await client.connect();
+        const db = client.db("testDB");
+        const users = db.collection("users");
+
+        // Find all documents that have been signed (have signedAt field)
+        const signedDocuments = await users.find(
+            { signedAt: { $exists: true } },
+            {
+                projection: {
+                    personName: 1,
+                    personTC: 1,
+                    course: 1,
+                    signedAt: 1,
+                    _id: 0
+                }
+            }
+        ).toArray();
+
+        res.json({
+            success: true,
+            data: signedDocuments
+        });
+    } catch (err) {
+        console.error("Database error:", err);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching signed documents"
+        });
+    } finally {
+        await client.close();
+    }
+});
 
 function titleCase(str) {
     return str

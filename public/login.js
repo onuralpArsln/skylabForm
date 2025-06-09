@@ -22,7 +22,6 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
             headers: {
                 "Content-Type": "application/json"
             },
-            credentials: "include", // For cookie/session-based auth
             body: JSON.stringify({ username, password })
         });
 
@@ -39,11 +38,13 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
             return;
         }
 
-        // Store token if needed (e.g., JWT)
-        // localStorage.setItem("token", data.token);
-
-        // Redirect on success
-        window.location.href = "/adminDash.html";
+        // Store token in localStorage
+        if (data.token) {
+            localStorage.setItem('token', data.token);
+            window.location.href = "/adminDash.html";
+        } else {
+            errorElem.textContent = "Token alınamadı. Lütfen tekrar deneyin.";
+        }
 
     } catch (error) {
         console.error("Login error:", error);
