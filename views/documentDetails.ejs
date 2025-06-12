@@ -5,150 +5,129 @@
     <title>Skylab Academy - Document Details</title>
     <link rel="stylesheet" href="/form.css">
     <link rel="icon" type="image/x-icon" href="/logo.ico">
-    <style>
-        .document-info {
-            margin: 20px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .info-group {
-            margin-bottom: 15px;
-        }
-
-        .info-label {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .info-value {
-            margin-left: 10px;
-            color: #666;
-        }
-
-        .id-card-images {
-            display: flex;
-            gap: 20px;
-            margin: 20px 0;
-        }
-
-        .id-card-images img {
-            max-width: 300px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .payment-plan {
-            margin: 20px 0;
-        }
-
-        .payment-plan img {
-            max-width: 500px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .back-button {
-            margin: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .back-button:hover {
-            background-color: #0056b3;
-        }
-    </style>
 </head>
 
 <body>
-    <button class="back-button" onclick="window.history.back()">← Back to Dashboard</button>
-
-    <div class="document-info">
-        <h1>Document Details</h1>
-
-        <div class="info-group">
-            <span class="info-label">Agreement Number:</span>
-            <span class="info-value">
-                <%= document.agreementNumber %>
-            </span>
-        </div>
-
-        <div class="info-group">
-            <span class="info-label">Full Name:</span>
-            <span class="info-value">
+    <div class="section frontPage centered-print">
+        <img src="/skyimg.jpg" alt="">
+        <h1>Skylab Academy</h1>
+        <h1 style="margin-top: -30px;">Document Details</h1>
+        <p style="margin-top: -5px; font-size: 20px;">Kursiyer Adı</p>
+        <p style="margin-top: -15px; font-size: 30px;">
+            <%= document.username %>
+        </p>
+        <p style="margin-top: -5px; font-size: 20px;">Sözleşme Numarası</p>
+        <p style="margin-top: -15px; font-size: 30px;">
+            <%= document.agreementNumber %>
+        </p>
+    </div>
+    <div class="page-break"></div>
+    <div class="section pageOne">
+        <h3>Kursiyer Bilgileri</h3>
+        <div class="form-group formBlock">
+            <label>Adı Soyadı</label>
+            <div>
                 <%= document.username %>
-            </span>
+            </div>
         </div>
-
-        <div class="info-group">
-            <span class="info-label">TC Identity Number:</span>
-            <span class="info-value">
+        <div class="form-group formBlock">
+            <label>TC Kimlik Numarası</label>
+            <div>
                 <%= document.tcno %>
-            </span>
+            </div>
         </div>
-
-        <div class="info-group">
-            <span class="info-label">Email:</span>
-            <span class="info-value">
+        <div class="form-group formBlock">
+            <label>Email</label>
+            <div>
                 <%= document.email %>
-            </span>
+            </div>
         </div>
-
-        <div class="info-group">
-            <span class="info-label">Birth Date:</span>
-            <span class="info-value">
+        <div class="form-group formBlock">
+            <label>Doğum Tarihi</label>
+            <div>
                 <%= document.birthdate %>
-            </span>
+            </div>
         </div>
-
-        <div class="info-group">
-            <span class="info-label">Address:</span>
-            <span class="info-value">
+        <div class="form-group formBlock">
+            <label>Adres</label>
+            <div>
                 <%= document.adres %>
-            </span>
+            </div>
         </div>
-
-        <div class="info-group">
-            <span class="info-label">Phone Number:</span>
-            <span class="info-value">
+        <div class="form-group formBlock">
+            <label>Telefon Numarası</label>
+            <div>
                 <%= document.phone %>
-            </span>
+            </div>
         </div>
-
-        <div class="info-group">
-            <span class="info-label">Course:</span>
-            <span class="info-value">
+        <div class="form-group formBlock">
+            <label>Kurs</label>
+            <div>
                 <%= document.course %>
-            </span>
+            </div>
         </div>
-
-        <div class="info-group">
-            <span class="info-label">Signed At:</span>
-            <span class="info-value">
+        <div class="form-group formBlock">
+            <label>İmzalanma Tarihi</label>
+            <div>
                 <%= document.signedAt %>
-            </span>
-        </div>
-
-        <h2>ID Card Images</h2>
-        <div class="id-card-images">
-            <div>
-                <h3>Front Side</h3>
-                <img src="<%= document.kimlikFront %>" alt="ID Card Front">
-            </div>
-            <div>
-                <h3>Back Side</h3>
-                <img src="<%= document.kimlikBack %>" alt="ID Card Back">
             </div>
         </div>
-
-        <h2>Payment Plan</h2>
-        <div class="payment-plan">
-            <img src="<%= document.paymentPlan %>" alt="Payment Plan">
+        <div class="pageEnd">
+            <div> <img src="/kase.png" alt=""> </div>
+            <div class="user">
+                <div class="nameDiv">
+                    <%= document.username %>
+                </div>
+                <div class="tcnoimza"></div>
+            </div>
+        </div>
+    </div>
+    <div class="page-break"></div>
+    <div class="section pageTwo">
+        <h3>Kimlik Görselleri</h3>
+        <div class="form-group formBlock">
+            <label>Kimlik Ön Yüz</label>
+            <div class="kimlikfoto">
+                <img src="<%= document.kimlikFront %>" alt="ID Card Front" class="file-preview" />
+            </div>
+        </div>
+        <div class="form-group formBlock">
+            <label>Kimlik Arka Yüz</label>
+            <div class="kimlikfoto">
+                <img src="<%= document.kimlikBack %>" alt="ID Card Back" class="file-preview" />
+            </div>
+        </div>
+        <div class="pageEnd">
+            <div> <img src="/kase.png" alt=""> </div>
+            <div class="user">
+                <div class="nameDiv">
+                    <%= document.username %>
+                </div>
+                <div class="tcnoimza"></div>
+            </div>
+        </div>
+    </div>
+    <div class="page-break"></div>
+    <div class="section pageThree">
+        <h3>Ödeme Planı</h3>
+        <div class="form-group formBlock">
+            <label>Ödeme Planı</label>
+            <div class="paymentPlandiv">
+                <% if (document.paymentPlan) { %>
+                    <img src="<%= document.paymentPlan %>" alt="Payment Plan" height="500" />
+                    <% } else { %>
+                        <p>Plan bulunamadı. Lütfen yetkili ile iletişime geçin.</p>
+                        <% } %>
+            </div>
+        </div>
+        <div class="pageEnd">
+            <div> <img src="/kase.png" alt=""> </div>
+            <div class="user">
+                <div class="nameDiv">
+                    <%= document.username %>
+                </div>
+                <div class="tcnoimza"></div>
+            </div>
         </div>
     </div>
 </body>
