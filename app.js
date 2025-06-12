@@ -251,6 +251,7 @@ app.get('/api/signed-documents', authenticateToken, async (req, res) => {
             { signedAt: { $exists: true } },
             {
                 projection: {
+                    formid: 1,
                     personName: 1,
                     personTC: 1,
                     course: 1,
@@ -270,6 +271,57 @@ app.get('/api/signed-documents', authenticateToken, async (req, res) => {
             success: false,
             message: "Error fetching signed documents"
         });
+    } finally {
+        await client.close();
+    }
+});
+
+// Add new route for document details
+app.get('/document/:formid', async (req, res) => {
+    const formid = req.params.formid;
+
+    try {
+        await client.connect();
+        const db = client.db("testDB");
+        const users = db.collection("users");
+
+        const document = await users.findOne({ formid });
+
+        if (!document) {
+            return res.status(404).send('Document not found');
+        }
+
+        // Map the document fields to match the template variables
+        const mappedDocument = {
+            agreementNumber: document.formid,
+            username: document.personName,
+            tcno: document.personTC,
+            email: document.personMail,
+            birthdate: document.personBirthDate,
+            adres: document.personAdres,
+            phone: document.personPhone,
+            course: document.course,
+            signedAt: document.signedAt,
+            kimlikFront: document.kimlikFront,
+            kimlikBack: document.kimlikBack,
+            paymentPlan: document.paymentPlan
+        };
+
+        // Convert binary image data to base64 for display
+        if (mappedDocument.kimlikFront && mappedDocument.kimlikFront.data) {
+            mappedDocument.kimlikFront = `data:${mappedDocument.kimlikFront.contentType};base64,${mappedDocument.kimlikFront.data.toString('base64')}`;
+        }
+        if (mappedDocument.kimlikBack && mappedDocument.kimlikBack.data) {
+            mappedDocument.kimlikBack = `data:${mappedDocument.kimlikBack.contentType};base64,${mappedDocument.kimlikBack.data.toString('base64')}`;
+        }
+        if (mappedDocument.paymentPlan && mappedDocument.paymentPlan.data) {
+            mappedDocument.paymentPlan = `data:${mappedDocument.paymentPlan.contentType};base64,${mappedDocument.paymentPlan.data.toString('base64')}`;
+        }
+
+        res.render('documentDetails', { document: mappedDocument });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
     } finally {
         await client.close();
     }

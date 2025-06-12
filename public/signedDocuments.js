@@ -13,7 +13,7 @@ function formatDate(dateString) {
 // Function to create document row
 function createDocumentRow(document) {
     return `
-        <tr>
+        <tr onclick="window.location.href='/document/${document.formid}'" style="cursor: pointer;">
             <td>${document.personName || 'N/A'}</td>
             <td>${document.personTC || 'N/A'}</td>
             <td>${document.course || 'N/A'}</td>
