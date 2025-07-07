@@ -211,3 +211,105 @@ The system supports two main form submission methods:
 - Implements proper error handling and user feedback mechanisms
 - JWT token management for authentication
 - Secure file upload handling
+
+### LLM Code Agent Guide
+
+This section provides a detailed breakdown of the project's structure, logic, and key components to facilitate understanding and modification by AI code agents.
+
+#### 1. Project Goal
+
+The application is a web-based form submission and management system. It allows an administrator to create "payment plan" forms, which include uploading a document. A unique link is generated for each form. A user (student) can then access this link to fill in their personal details, upload identity documents, and digitally sign the form. The administrator has a dashboard to create these forms and view all the completed, signed submissions.
+
+#### 2. Core Technologies
+
+*   **Backend:** Node.js
+*   **Web Framework:** Express.js for routing and middleware.
+*   **Database:** MongoDB for storing user data, form data, and file metadata. The native `mongodb` driver is used.
+*   **File Uploads:** `multer` middleware for handling `multipart/form-data` submissions, specifically for payment plan images and ID card images.
+*   **Authentication:** JSON Web Tokens (JWT) for securing admin-only API endpoints.
+*   **Security:** `helmet` for setting various security-related HTTP headers.
+*   **Environment Variables:** `dotenv` for managing configuration from a `.env` file.
+*   **Templating (likely):** An Express-compatible view engine like EJS is likely used to render the HTML pages, given the presence of `ejs` in the dependencies.
+
+#### 3. Inferred File Structure & Purpose
+
+Based on the project's dependencies and functionality, the file structure is likely organized as follows:
+
+*   `server.js` (or `app.js`): The main application entry point.
+    *   Initializes the Express app.
+    *   Connects to the MongoDB database.
+    *   Configures middleware (e.g., `express.json()`, `helmet()`, `cookieParser()`, `express.static()`).
+    *   Sets up `multer` for file storage.
+    *   Defines and mounts the application's routers.
+    *   Starts the HTTP server.
+
+*   `/routes`: Contains the route handlers for different parts of the application.
+    *   `api.js`: Defines API endpoints like `/api/login`, `/api/paymentplan`, `/api/sign`, and `/api/signed-documents`.
+    *   `pages.js`: Defines page-rendering routes like `/`, `/login`, and `/form/:formid`.
+
+*   `/middleware`: Contains custom middleware functions.
+    *   `auth.js`: A middleware function that verifies the JWT from the `Authorization` header. It's used to protect admin-only routes (e.g., `/`, `/api/signed-documents`).
+
+*   `/models`: Contains the MongoDB data schemas (likely using Mongoose, or plain objects with the native driver).
+    *   `paymentPlan.js`: Schema for the `paymentplans` collection. Fields would include `_id` (auto-generated), `formId` (the unique ID for the URL), `kayitadi`, `course`, and `payPlanImagePath`.
+    *   `signedDocument.js`: Schema for the `signeddocuments` collection. Fields would include `_id`, `agreementNumber` (linking to `formId`), `username`, `tcno`, `email`, `adres`, `birthdate`, `phone`, `kimlikFrontPath`, `kimlikBackPath`, and `signedAt`.
+    *   `admin.js`: Schema for admin users. Fields would include `username` and `password` (hashed).
+
+*   `/public`: Contains all static assets served to the client.
+    *   `/js/main.js`: Client-side JavaScript for the admin dashboard. Handles creating payment plans and fetching/displaying signed documents.
+    *   `/js/form.js`: Client-side JavaScript for the `/form/:formid` page. Handles input validation, image previews, and form submission via `fetch` to `/api/sign`.
+    *   `/js/login.js`: Client-side JavaScript for the login page. Handles submitting credentials and storing the returned JWT in `localStorage`.
+    *   `/css/style.css`: Stylesheets for the application.
+
+*   `/views`: Contains the EJS (or other templating engine) files.
+    *   `index.ejs`: The admin dashboard.
+    *   `login.ejs`: The admin login page.
+    *   `form.ejs`: The user-facing form for signing.
+
+*   `/uploads`: The directory where `multer` saves all uploaded files. This directory should be configured to be accessible if the images need to be served directly (e.g., `/uploads/payment-plans/` and `/uploads/id-cards/`).
+
+*   `.env`: Stores sensitive configuration data.
+    *   `MONGO_URI`: The connection string for the MongoDB database.
+    *   `JWT_SECRET`: The secret key for signing and verifying JSON Web Tokens.
+    *   `ADMIN_USERNAME`: The administrator's username.
+    *   `ADMIN_PASSWORD`: The administrator's password.
+    *   `PORT`: The port on which the server runs.
+
+#### 4. Key Logic Flows
+
+1.  **Admin Authentication Flow (`/api/login`)**
+    *   **Trigger:** Admin submits login form.
+    *   **Process:**
+        1.  The route handler for `POST /api/login` receives `username` and `password`.
+        2.  It queries the database for an admin matching the `username`.
+        3.  It compares the submitted `password` with the stored (hashed) password.
+        4.  If credentials are valid, it creates a JWT containing the admin's ID or username, signed with `JWT_SECRET`.
+        5.  It returns the token to the client.
+    *   **Client-side:** The client receives the token and stores it in `localStorage`. For subsequent protected requests, it adds an `Authorization: Bearer <token>` header.
+
+2.  **Payment Plan Creation Flow (`/api/paymentplan`)**
+    *   **Trigger:** Admin submits the "Create Payment Plan" form from the dashboard.
+    *   **Process:**
+        1.  The request is `multipart/form-data`. The `multer` middleware is executed first.
+        2.  `multer` parses the form fields (`kayitadi`, `course`) and the file (`payPlan`). It saves the file to the configured `uploads` directory with a unique name to prevent collisions.
+        3.  The file's path and other form data are attached to the `req` object (e.g., `req.file`, `req.body`).
+        4.  The route handler generates a unique `formid` (e.g., using `crypto` or a UUID library).
+        5.  It saves a new document to the `paymentplans` collection with the data and the generated `formid`.
+        6.  It constructs the full URL (`/form/<formid>`) and sends it back to the admin in the JSON response.
+
+3.  **Form Signing Flow (`/api/sign`)**
+    *   **Trigger:** A user fills out and submits the form at a `/form/:formid` URL.
+    *   **Process:**
+        1.  This is also a `multipart/form-data` request. `multer` is configured to handle two files: `kimlikFront` and `kimlikBack`.
+        2.  `multer` saves the ID card images to the `uploads` directory. The file information is attached to `req.files`.
+        3.  The route handler receives the text fields in `req.body` and the file info in `req.files`.
+        4.  It creates a new document in the `signeddocuments` collection, storing all the personal information, the `agreementNumber` (which is the `formid` from the URL), the paths to the two ID images, and the current timestamp for `signedAt`.
+        5.  It returns a success message to the user.
+
+4.  **Data Retrieval Flow (`/api/signed-documents`)**
+    *   **Trigger:** The admin dashboard page loads and needs to display the list of signed documents.
+    *   **Process:**
+        1.  The client sends a `GET` request to `/api/signed-documents`.
+        2.  The `auth.js` middleware runs first. It extracts the token from the `Authorization` header, verifies its signature and validity using `jsonwebtoken.verify()`. If the token is invalid or missing, it sends a `401 Unauthorized` or `403 Forbidden` response. If valid, it calls `next()`.
+        3.  The route handler queries the `signeddocuments` collection in the database.
+        4.  It formats the data as needed (e.g., formatting the `signedAt` date) and sends the array of documents back to the client as a JSON response.
