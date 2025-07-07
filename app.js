@@ -8,7 +8,7 @@ const upload = multer();  // Multer memory storage (no disk storage)
 
 require('dotenv').config();
 const mongo_uri = process.env.MONGO_URI
-const userName = process.env.USER
+const userName = process.env.WEBAPPUSER
 const passWord = process.env.PASS
 const secretKey = process.env.KEY
 
