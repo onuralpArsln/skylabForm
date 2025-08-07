@@ -80,11 +80,13 @@ document.getElementById('dataForm').addEventListener('submit', async function (e
 
 
 function capitalizeWords(str) {
-    return str.replace(/\b\w/g, char => char.toUpperCase());
+    // Capitalize only after spaces, not special characters
+    return str.replace(/(?:^|\s)\w/g, char => char.toLocaleUpperCase('tr-TR'));
 }
 
 document.getElementById('username').addEventListener('input', function () {
-    this.value = capitalizeWords(this.value.toLowerCase());
+    // Use Turkish locale for proper lowercase conversion
+    this.value = capitalizeWords(this.value.toLocaleLowerCase('tr-TR'));
 });
 
 

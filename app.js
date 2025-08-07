@@ -24,8 +24,10 @@ const client = new MongoClient(mongo_uri, {
 // create api
 const app = express();
 
-// Middleware to parse JSON body
-app.use(express.json());
+// Middleware to parse JSON body with UTF-8 encoding
+app.use(express.json({ charset: 'utf-8' }));
+app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
+
 
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
@@ -329,10 +331,10 @@ app.get('/document/:formid', async (req, res) => {
 
 function titleCase(str) {
     return str
-        .toLowerCase()
+        .toLocaleLowerCase('tr-TR') // Use Turkish locale for proper lowercase
         .split(' ')
         .filter(Boolean) // boşlukları temizler
-        .map(word => word[0].toUpperCase() + word.slice(1))
+        .map(word => word[0].toLocaleUpperCase('tr-TR') + word.slice(1))
         .join(' ');
 }
 

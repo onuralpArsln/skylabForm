@@ -9,36 +9,37 @@
 </head>
 
 <body>
-    <div style="height: 100px;"></div>
+    <div id="adminDashPage">
+        <div style="height: 100px;"></div>
 
-    <h1>Admin Dashboard</h1>
-    <div class="formContainer">
-        <h2 id="hidePayment">Ödeme Planı Oluştur</h2>
-        <form id="odemeForm" style="max-width: 600px;display: flex;flex-direction: column;">
+        <h1>Admin Dashboard</h1>
+        <div class="formContainer">
+            <h2 id="hidePayment">Ödeme Planı Oluştur</h2>
+            <form id="odemeForm" style="max-width: 600px;display: flex;flex-direction: column;">
 
-            <label for="kayitadi">Kayıt Adı</label><br>
-            <input type="text" id="kayitadi" name="kayitadi" required><br><br>
-
-
-            <label for="course">Kurs Adı</label><br>
-            <input type="text" id="course" name="course" required><br><br>
+                <label for="kayitadi">Kayıt Adı</label><br>
+                <input type="text" id="kayitadi" name="kayitadi" required><br><br>
 
 
-            <label for="payPlan">Ödeme Planı</label>
-            <input type="file" id="payPlan" name="payPlan" accept="image/*" required />
+                <label for="course">Kurs Adı</label><br>
+                <input type="text" id="course" name="course" required><br><br>
 
-            <img id="imagePreview" class="file-preview" />
 
-            <div style="height: 10px;"></div>
+                <label for="payPlan">Ödeme Planı</label>
+                <input type="file" id="payPlan" name="payPlan" accept="image/*" required />
 
-            <input type="submit" id="gonderButonu" value="Planı Oluştur">
-        </form>
+                <img id="imagePreview" class="file-preview" />
 
-        <span id="yukleniyorAnimasyon" style="display: none;">⏳ Yükleniyor...</span>
-        <div id="linkSonucu" style="margin-top: 20px; font-weight: bold;"></div>
+                <div style="height: 10px;"></div>
+
+                <input type="submit" id="gonderButonu" value="Planı Oluştur">
+            </form>
+
+            <span id="yukleniyorAnimasyon" style="display: none;">⏳ Yükleniyor...</span>
+            <div id="linkSonucu" style="margin-top: 20px; font-weight: bold;"></div>
+        </div>
+        <div id="signedDocumentsList"></div>
     </div>
-    <div id="signedDocumentsList"></div>
-
     <!-- Scripts -->
     <script src="/planCreate.js"></script>
     <script src="/signedDocuments.js"></script>

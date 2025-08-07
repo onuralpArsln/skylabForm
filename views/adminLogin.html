@@ -3,25 +3,35 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skylab Academy</title>
     <link rel="stylesheet" href="/login.css">
-    <link rel="icon" type="image/x-icon" href="/images/logo.ico">
+    <link rel="icon" type="image/x-icon" href="/logo.ico">
 </head>
 
 <body>
-    <div style="height: 100px;"></div>
-    <h1>Admin Giriş</h1>
+    <div class="login-spacer"></div>
+   
     <div class="loginDiv">
+        <div style="margin-bottom: 30px; text-align: center;">
+            <div
+                style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);">
+                <span style="color: white; font-size: 2rem; font-weight: bold;">S</span>
+            </div>
+            <h2 style="color: #333; margin: 0; font-size: 1.5rem; font-weight: 600;">Skylab Academy</h2>
+            <p style="color: #666; margin: 5px 0 0; font-size: 0.9rem;">Admin Panel</p>
+        </div>
+
         <label for="username">Kullanıcı Adı</label>
-        <input id="username" type="text">
+        <input id="username" type="text" placeholder="Kullanıcı adınızı giriniz">
 
-        <div style="padding-top:20px;"></div>
+        <div class="form-spacer"></div>
         <label for="pass">Şifre</label>
-        <input id="pass" type="password">
+        <input id="pass" type="password" placeholder="Şifrenizi giriniz">
 
-        <button id="loginBtn" style="margin-top: 20px;">Giriş Yap</button>
+        <button id="loginBtn" class="login-button">Giriş Yap</button>
 
-        <p id="error" style="color: red;"></p>
+        <p id="error" class="error-message"></p>
     </div>
 
     <script src="/login.js"></script>
