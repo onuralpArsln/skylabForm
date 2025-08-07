@@ -100,6 +100,22 @@ input[type="range"] {
   flex: 1;
 }
 
+/* Age validation styles */
+.age-error {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+input[type="date"]:invalid {
+  border-color: #e74c3c;
+}
+
+input[type="date"]:valid {
+  border-color: #27ae60;
+}
+
 .range-value {
   min-width: 50px;
   text-align: center;

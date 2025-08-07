@@ -157,10 +157,72 @@ document.addEventListener('DOMContentLoaded', function () {
             checkboxes.forEach(cb => cb.checked = isChecked);
         });
     });
+
+    // Add real-time age validation for birth date field
+    const birthdateInput = document.getElementById('birthdate');
+    if (birthdateInput) {
+        // Set maximum date to 18 years ago from today
+        const today = new Date();
+        const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+        birthdateInput.max = maxDate.toISOString().split('T')[0];
+
+        birthdateInput.addEventListener('change', function () {
+            const validation = validateAge(this.value);
+            const errorElement = this.parentElement.querySelector('.age-error') ||
+                this.parentElement.querySelector('.error-message');
+
+            // Remove existing error message
+            if (errorElement) {
+                errorElement.remove();
+            }
+
+            if (!validation.isValid) {
+                // Create error message element
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'age-error';
+                errorDiv.style.color = '#e74c3c';
+                errorDiv.style.fontSize = '12px';
+                errorDiv.style.marginTop = '5px';
+                errorDiv.textContent = validation.message;
+
+                // Insert error message after the input
+                this.parentElement.appendChild(errorDiv);
+
+                // Add red border to input
+                this.style.borderColor = '#e74c3c';
+            } else {
+                // Remove red border
+                this.style.borderColor = '';
+            }
+        });
+    }
 });
 
 
 
+
+// Function to validate age (18 or older)
+function validateAge(birthdate) {
+    if (!birthdate) {
+        return { isValid: false, message: "Doğum tarihi gereklidir." };
+    }
+
+    const today = new Date();
+    const birthDate = new Date(birthdate);
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    // Check if birthday has occurred this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+
+    if (age < 18) {
+        return { isValid: false, message: "18 yaşından küçük kullanıcılar kayıt olamaz." };
+    }
+
+    return { isValid: true, message: "" };
+}
 
 document.getElementById('dataForm').addEventListener('submit', async function (e) {
     e.preventDefault(); // Prevent default form submission
@@ -173,6 +235,13 @@ document.getElementById('dataForm').addEventListener('submit', async function (e
     const phone = document.getElementById("phone").value;
 
 
+
+    // Validate age
+    const ageValidation = validateAge(birthdate);
+    if (!ageValidation.isValid) {
+        alert(ageValidation.message);
+        return;
+    }
 
     // File inputs
     const kimlikFront = document.getElementById("kimlik").files[0];
