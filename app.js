@@ -12,14 +12,22 @@ const userName = process.env.WEBAPPUSER
 const passWord = process.env.PASS
 const secretKey = process.env.KEY
 
-// create mongo client
+// create mongo client (single, long-lived connection)
 const client = new MongoClient(mongo_uri, {
     serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-    }
+    },
+    // Connection pool and keep-alive tuning to reduce idle disconnects
+    maxPoolSize: 10,
+    minPoolSize: 1,
+    maxIdleTimeMS: 0,
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 0,
 });
+
+let db; // shared DB handle
 
 // create api
 const app = express();
@@ -43,8 +51,6 @@ app.get('/form/:formid', async (req, res) => {
     const formid = req.params.formid;
 
     try {
-        await client.connect();
-        const db = client.db("testDB");
         const users = db.collection("users");
 
         const record = await users.findOne({ formid });
@@ -68,8 +74,6 @@ app.get('/form/:formid', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
-    } finally {
-        await client.close();
     }
 });
 
@@ -129,8 +133,6 @@ app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
     const link = `${baseUrl}/form/${paymentId}`;
 
     try {
-        await client.connect();
-        const db = client.db("testDB");
         const users = db.collection("users");
 
         // Store image buffer and mimetype in DB document
@@ -151,8 +153,6 @@ app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
         console.log(`1 document inserted.`);
     } catch (err) {
         console.error(err);
-    } finally {
-        await client.close();
     }
 
     res.json({
@@ -187,8 +187,6 @@ app.post('/api/sign', upload.fields([
 
 
     try {
-        await client.connect();
-        const db = client.db("testDB");
         const users = db.collection("users");
 
 
@@ -244,8 +242,6 @@ const authenticateToken = (req, res, next) => {
 // Protected endpoint to get signed documents
 app.get('/api/signed-documents', authenticateToken, async (req, res) => {
     try {
-        await client.connect();
-        const db = client.db("testDB");
         const users = db.collection("users");
 
         // Find all documents that have been signed (have signedAt field)
@@ -273,8 +269,6 @@ app.get('/api/signed-documents', authenticateToken, async (req, res) => {
             success: false,
             message: "Error fetching signed documents"
         });
-    } finally {
-        await client.close();
     }
 });
 
@@ -283,8 +277,6 @@ app.get('/document/:formid', async (req, res) => {
     const formid = req.params.formid;
 
     try {
-        await client.connect();
-        const db = client.db("testDB");
         const users = db.collection("users");
 
         const document = await users.findOne({ formid });
@@ -324,8 +316,6 @@ app.get('/document/:formid', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
-    } finally {
-        await client.close();
     }
 });
 
@@ -338,8 +328,38 @@ function titleCase(str) {
         .join(' ');
 }
 
+// Connect once at startup, keep the connection alive, and start the server
+async function startServer() {
+    try {
+        await client.connect();
+        db = client.db("testDB");
+        // Warm-up ping and periodic keep-alive
+        await db.command({ ping: 1 });
+        setInterval(async () => {
+            try {
+                await db.command({ ping: 1 });
+            } catch (pingError) {
+                console.error('MongoDB ping failed:', pingError);
+            }
+        }, 5 * 60 * 1000); // every 5 minutes
 
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+        const PORT = process.env.PORT || 3000;
+        app.listen(PORT, () => {
+            console.log(`Server running at http://localhost:${PORT}`);
+        });
+    } catch (startupError) {
+        console.error('Failed to initialize MongoDB connection:', startupError);
+        process.exit(1);
+    }
+}
+
+startServer();
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+    try {
+        await client.close();
+    } finally {
+        process.exit(0);
+    }
 });
