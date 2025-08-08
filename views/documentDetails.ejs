@@ -157,6 +157,7 @@
             sırasında ara verebilir. Bu şekilde erteleme ve eğitime ara verme durumları fesih sebebi sayılamaz ve bu
             nedenlerden dolayı <b>"Kursiyer"</b> ödemelerini aksatamaz. <br>
         </div>
+
         <div class="pageEnd">
             <div> <img src="/kase.png" alt=""> </div>
             <div class="user">
@@ -181,6 +182,8 @@
                 </div>
             </div>
         </div>
+
+
     </div>
     <div class="section pageThree">
         <h3> 7. ANLAŞMAZLIK HALİ </h3>
@@ -192,6 +195,48 @@
             bilgilerin delil olarak kullanılamayacağını taraflar beyan, kabul ve taahhüt etmiştir.
         </div>
         <div style="height: 20px;"></div>
+
+        <!-- Ödeme Planı moved to be directly under Section 7 (before Kursiyer) -->
+        <div id="paymentplan" class="form-group">
+            <label class="paymentPlanLabel">Ödeme Planı</label><br />
+            <div class="paymentPlandiv">
+                <% if (document.paymentPlan) { %>
+                    <img src="<%= document.paymentPlan %>" alt="Payment Plan" class="paymentPlanImg" />
+                    <% } else { %>
+                        <p>Plan bulunamadı. Lütfen yetkili ile iletişime geçin.</p>
+                        <% } %>
+            </div>
+        </div>
+
+        <div class="pageEnd">
+            <div> <img src="/kase.png" alt=""> </div>
+            <div class="user">
+                <div class="nameDiv">
+                    <%= document.username %>
+                </div>
+                <div class="tcnoimza">
+                    <%= document.tcno %>
+                </div>
+                <div class="accept-terms">
+                    <svg width="20" height="20" viewBox="0 0 20 20" style="margin-right: 6px; vertical-align: middle;"
+                        fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="10" cy="10" r="10" fill="#2196F3" />
+                        <path d="M6 10.5L9 13.5L14 8.5" stroke="white" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span style="vertical-align: middle;">Şartları ve koşulları kabul ediyorum</span>
+                </div>
+                <div class="signed-at" style="margin-top: 2px;">
+                    <%= document.signedAt ? new Date(document.signedAt).toLocaleString('tr-TR', { dateStyle: 'long' ,
+                        timeStyle: 'short' }) : '' %>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="page-break"></div>
+
+
         <h3> Kursiyer </h3>
         <div class="form-group formBlock">
             <label>Adı Soyadı</label>
@@ -305,44 +350,7 @@
             </div>
         </div>
     </div>
-    <div class="page-break"></div>
-    <div class="pageFive section">
-        <div id="paymentplan" class="form-group">
-            <label>Ödeme Planı</label><br />
-            <div class="paymentPlandiv">
-                <% if (document.paymentPlan) { %>
-                    <img src="<%= document.paymentPlan %>" alt="Payment Plan" height="500" />
-                    <% } else { %>
-                        <p>Plan bulunamadı. Lütfen yetkili ile iletişime geçin.</p>
-                        <% } %>
-            </div>
-            <div class="pageEnd">
-                <div> <img src="/kase.png" alt=""> </div>
-                <div class="user">
-                    <div class="nameDiv">
-                        <%= document.username %>
-                    </div>
-                    <div class="tcnoimza">
-                        <%= document.tcno %>
-                    </div>
-                    <div class="accept-terms">
-                        <svg width="20" height="20" viewBox="0 0 20 20"
-                            style="margin-right: 6px; vertical-align: middle;" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="10" cy="10" r="10" fill="#2196F3" />
-                            <path d="M6 10.5L9 13.5L14 8.5" stroke="white" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                        <span style="vertical-align: middle;">Şartları ve koşulları kabul ediyorum</span>
-                    </div>
-                    <div class="signed-at" style="margin-top: 2px;">
-                        <%= document.signedAt ? new Date(document.signedAt).toLocaleString('tr-TR', { dateStyle: 'long'
-                            , timeStyle: 'short' }) : '' %>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
 </body>
 
 </html>

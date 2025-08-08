@@ -250,6 +250,38 @@
 
             <div style="height: 20px;"></div>
 
+            <!-- Ödeme Planı moved to be directly under Section 7 (before Kursiyer) -->
+            <div id="paymentplan" class="form-group">
+                <label class="paymentPlanLabel">Ödeme Planı</label><br />
+                <div class="paymentPlandiv">
+                    <% if (imageSrc) { %>
+                        <img src="<%= imageSrc %>" alt="Payment Plan" class="paymentPlanImg" />
+                        <% } else { %>
+                            <p>Plan bulunamadı. Lütfen yetkili ile iletişime geçin.</p>
+                            <% } %>
+                </div>
+            </div>
+
+
+            <div class="pageEnd">
+                <div> <img src="/kase.png" alt=""> </div>
+                <div class="user">
+                    <div class="nameDiv">
+                        <%= isim %>
+                    </div>
+                    <div class="tcnoimza"></div>
+                    <label>
+                        <input type="checkbox" name="terms" required>
+                        Şartları ve koşulları kabul ediyorum </label>
+                </div>
+
+
+            </div>
+
+
+            <div class="page-break"></div>
+
+
             <h3> Kursiyer </h3>
 
             <div class="form-group formBlock">
@@ -299,6 +331,8 @@
                     <%= course %>
                 </div>
             </div>
+
+
 
 
 
@@ -364,42 +398,8 @@
 
         </div>
 
-        <div class="page-break"></div>
-
-        <div class="pageFive section">
-
-
-            <!-- Display image inside "paymentplan" div -->
-            <div id="paymentplan" class="form-group">
-                <label>Ödeme Planı</label><br />
-                <div class="paymentPlandiv">
-                    <% if (imageSrc) { %>
-                        <img src="<%= imageSrc %>" alt="Profile Image" height="500" />
-                        <% } else { %>
-                            <p>Plan bulunamadı. Lütfen yetkili ile iletişime geçin.</p>
-                            <% } %>
-
-                </div>
-
-
-                <div class="pageEnd">
-                    <div> <img src="/kase.png" alt=""> </div>
-                    <div class="user">
-                        <div class="nameDiv">
-                            <%= isim %>
-                        </div>
-                        <div class="tcnoimza"></div>
-                        <label>
-                            <input type="checkbox" name="terms" required>
-                            Şartları ve koşulları kabul ediyorum </label>
-                    </div>
-
-
-                </div>
-            </div>
-
-            <button id="sign" type="submit">İmzala</button>
-        </div>
+        <!-- Submit button moved here to preserve functionality after relocating payment plan -->
+        <button id="sign" type="submit">İmzala</button>
     </form>
 
     <pre id="response"></pre>
