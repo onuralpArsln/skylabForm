@@ -218,7 +218,12 @@ button:hover {
 .paymentPlanImg {
   max-height: 100%;
 }
-
+.agreement-text {
+  text-align: justify;
+  text-justify: inter-word; /* optional */
+  -webkit-hyphens: auto; /* Safari/iOS support */
+  hyphens: auto; /* optional, improves justification with long words */
+}
 @media print {
   @page {
     size: A4;
