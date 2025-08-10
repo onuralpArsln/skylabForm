@@ -140,13 +140,13 @@ button:hover {
 }
 
 .file-preview {
-  margin-top: 10px;
-  padding: 10px;
+  margin-top: 0px;
+  padding: 0px;
   background: #f8f9fa;
   border-radius: 4px;
   /* display: none; */
   max-width: 900px;
-  max-height: 600px;
+  max-height: 450px;
 }
 
 .page-break {
@@ -201,9 +201,6 @@ button:hover {
 
 .pageEnd label {
   width: 400px;
-}
-.file-preview {
-  max-width: 300px;
 }
 
 .paymentPlandiv {
