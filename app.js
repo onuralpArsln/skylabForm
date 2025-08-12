@@ -66,10 +66,13 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
-// Serve static files (like script.js)
+// Serve static files (JS, images, CSS)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'images')));
 app.use(express.static(path.join(__dirname, 'style')));
+// Explicit mounts to avoid path ambiguity behind proxies or subpaths
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/style', express.static(path.join(__dirname, 'style')));
 // Do NOT expose view templates publicly
 
 // Serve HTML page
