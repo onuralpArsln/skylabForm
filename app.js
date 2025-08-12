@@ -2,15 +2,30 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const morgan = require('morgan');
+const helmet = require('helmet');
 
 const multer = require('multer');
-const upload = multer();  // Multer memory storage (no disk storage)
+// Multer memory storage with size limits to avoid memory pressure
+const upload = multer({ limits: { fileSize: 10 * 1024 * 1024, files: 5 } });
 
 require('dotenv').config();
 const mongo_uri = process.env.MONGO_URI
 const userName = process.env.WEBAPPUSER
 const passWord = process.env.PASS
 const secretKey = process.env.KEY
+
+// Validate critical environment variables early
+function validateEnv() {
+    const missing = [];
+    if (!mongo_uri) missing.push('MONGO_URI');
+    if (!secretKey) missing.push('KEY');
+    if (missing.length) {
+        console.error(`Missing required environment variables: ${missing.join(', ')}`);
+        process.exit(1);
+    }
+}
+validateEnv();
 
 // create mongo client (single, long-lived connection)
 const client = new MongoClient(mongo_uri, {
@@ -32,10 +47,21 @@ let db; // shared DB handle
 // create api
 const app = express();
 
-// Middleware to parse JSON body with UTF-8 encoding
-app.use(express.json({ charset: 'utf-8' }));
-app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
+// Behind reverse proxy (Nginx) so trust X-Forwarded-* headers
+app.set('trust proxy', 1);
 
+// Hide Express internals
+app.disable('x-powered-by');
+
+// Security headers
+app.use(helmet());
+
+// Middleware to parse JSON/body with sensible limits
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+// HTTP request logging
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
@@ -44,7 +70,7 @@ app.set('views', __dirname + '/views');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'images')));
 app.use(express.static(path.join(__dirname, 'style')));
-app.use(express.static(path.join(__dirname, 'views')));
+// Do NOT expose view templates publicly
 
 // Serve HTML page
 app.get('/form/:formid', async (req, res) => {
@@ -64,13 +90,13 @@ app.get('/form/:formid', async (req, res) => {
             const base64Image = record.paymentPlan.data.toString('base64');
             imageSrc = `data:${record.paymentPlan.contentType};base64,${base64Image}`;
 
-            agreementNumber = formid;
-            isim = titleCase(record.kayitadi);
-            course = record.course
+            const agreementNumber = formid;
+            const isim = titleCase(record.kayitadi);
+            const course = record.course;
 
         }
 
-        res.render('form', { user: record, imageSrc, agreementNumber, isim, course });
+        res.render('form', { user: record, imageSrc, agreementNumber: formid, isim: titleCase(record.kayitadi), course: record.course });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -211,8 +237,10 @@ app.post('/api/sign', upload.fields([
         );
 
         console.log("Update result:", result);
+        return res.status(200).json({ success: true, message: 'Document signed successfully' });
     } catch (err) {
         console.error("Database error:", err);
+        return res.status(500).json({ success: false, message: 'Failed to sign document' });
     }
 
 
@@ -344,8 +372,13 @@ async function startServer() {
         }, 5 * 60 * 1000); // every 5 minutes
 
         const PORT = process.env.PORT || 3000;
-        app.listen(PORT, () => {
-            console.log(`Server running at http://localhost:${PORT}`);
+        const HOST = process.env.HOST || '0.0.0.0';
+        httpServer = app.listen(PORT, HOST, () => {
+            console.log(`Server listening on http://${HOST}:${PORT}`);
+        });
+
+        httpServer.on('error', (err) => {
+            console.error('HTTP server error:', err);
         });
     } catch (startupError) {
         console.error('Failed to initialize MongoDB connection:', startupError);
@@ -356,10 +389,51 @@ async function startServer() {
 startServer();
 
 // Graceful shutdown
-process.on('SIGINT', async () => {
+let httpServer; // keep reference for graceful shutdown
+async function shutdown(signal) {
     try {
+        console.log(`Received ${signal}, shutting down...`);
+        if (httpServer) {
+            await new Promise((resolve) => httpServer.close(resolve));
+        }
         await client.close();
+    } catch (err) {
+        console.error('Error during shutdown:', err);
     } finally {
         process.exit(0);
     }
+}
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+// Liveness/Readiness probe
+app.get('/healthz', (req, res) => {
+    res.status(200).send('ok');
+});
+
+// Simple readiness check (DB connected)
+app.get('/readyz', (req, res) => {
+    if (db) return res.status(200).send('ready');
+    return res.status(503).send('not ready');
+});
+
+// 404 handler
+app.use((req, res, next) => {
+    res.status(404).json({ message: 'Not Found' });
+});
+
+// Centralized error handler
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err);
+    const status = err.status || 500;
+    res.status(status).json({ message: 'Internal Server Error' });
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('Unhandled Rejection:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
 });
