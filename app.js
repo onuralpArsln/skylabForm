@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient } = require('mongodb');
 const express = require('express');
 const path = require('path');
 const jwt = require('jsonwebtoken');
@@ -29,11 +29,6 @@ validateEnv();
 
 // create mongo client (single, long-lived connection)
 const client = new MongoClient(mongo_uri, {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    },
     // Connection pool and keep-alive tuning to reduce idle disconnects
     maxPoolSize: 10,
     minPoolSize: 1,
@@ -53,8 +48,10 @@ app.set('trust proxy', 1);
 // Hide Express internals
 app.disable('x-powered-by');
 
-// Security headers
-app.use(helmet());
+// Security headers with CSS-friendly configuration
+app.use(helmet({
+    contentSecurityPolicy: false, // Temporarily disable CSP to test CSS
+}));
 
 // Middleware to parse JSON/body with sensible limits
 app.use(express.json({ limit: '2mb' }));
@@ -67,13 +64,98 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
 // Serve static files (JS, images, CSS)
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'images')));
-app.use(express.static(path.join(__dirname, 'style')));
-// Explicit mounts to avoid path ambiguity behind proxies or subpaths
-app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/style', express.static(path.join(__dirname, 'style')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
+// Debug middleware to log static file requests
+app.use((req, res, next) => {
+    if (req.path.startsWith('/style/') || req.path.startsWith('/images/') || req.path.startsWith('/public/')) {
+        console.log(`Static file request: ${req.path}`);
+    }
+    next();
+});
+
 // Do NOT expose view templates publicly
+
+// Test route to verify static files are working
+app.get('/test-css', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>CSS Test</title>
+            <link rel="stylesheet" href="/style/form.css">
+            <style>
+                .inline-test { color: blue; font-size: 20px; }
+            </style>
+        </head>
+        <body>
+            <h1 style="color: red;">This should be red if CSS is working</h1>
+            <p class="inline-test">This should be blue if inline CSS works</p>
+            <p>If you see this text in default black, CSS is not loading.</p>
+            <div id="css-status">Checking CSS status...</div>
+            <div id="debug-info"></div>
+            <script>
+                // Debug CSS loading
+                const debugInfo = document.getElementById('debug-info');
+                debugInfo.innerHTML = '<h3>Debug Information:</h3>';
+                
+                // Check if CSS link exists
+                const cssLink = document.querySelector('link[href="/style/form.css"]');
+                debugInfo.innerHTML += '<p>CSS Link found: ' + (cssLink ? 'YES' : 'NO') + '</p>';
+                
+                // Check CSS file accessibility
+                fetch('/style/form.css')
+                    .then(response => {
+                        debugInfo.innerHTML += '<p>CSS file accessible: ' + response.status + '</p>';
+                        return response.text();
+                    })
+                    .then(css => {
+                        debugInfo.innerHTML += '<p>CSS content length: ' + css.length + '</p>';
+                        debugInfo.innerHTML += '<p>CSS first line: ' + css.split('\\n')[0] + '</p>';
+                    })
+                    .catch(error => {
+                        debugInfo.innerHTML += '<p>CSS fetch error: ' + error.message + '</p>';
+                    });
+                
+                // Check computed styles
+                setTimeout(() => {
+                    const body = document.body;
+                    const computedStyle = window.getComputedStyle(body);
+                    const bgColor = computedStyle.backgroundColor;
+                    const status = document.getElementById('css-status');
+                    status.innerHTML = 'Background color: ' + bgColor + '<br>CSS loaded: ' + (bgColor !== 'rgba(0, 0, 0, 0)');
+                    status.style.color = 'green';
+                    
+                    debugInfo.innerHTML += '<p>Computed background color: ' + bgColor + '</p>';
+                }, 100);
+            </script>
+        </body>
+        </html>
+    `);
+});
+
+// Simple CSS test route
+app.get('/css-test', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Simple CSS Test</title>
+        </head>
+        <body style="background-color: #f0f0f0;">
+            <h1 style="color: red;">Red Heading</h1>
+            <p style="color: blue; font-size: 18px;">Blue paragraph with larger font</p>
+            <div style="background-color: yellow; padding: 20px; margin: 10px;">
+                <p>This div should have yellow background</p>
+            </div>
+            <p>If you see colors and styling above, inline CSS works.</p>
+            <p>If everything looks plain, there's a browser issue.</p>
+        </body>
+        </html>
+    `);
+});
 
 // Serve HTML page
 app.get('/form/:formid', async (req, res) => {
@@ -113,7 +195,7 @@ app.get('/login', (req, res) => {
 app.get('/', (req, res) => {
 
     const authHeader = req.headers['authorization'];
-    const token = authHeader?.split(' ')[1];
+    const token = authHeader && authHeader.split(' ')[1];
     jwt.verify(token, secretKey, (err, user) => {
         if (err) return res.sendFile(path.join(__dirname, 'views', 'adminLogin.html'));
         res.sendFile(path.join(__dirname, 'views', 'adminDash.html'));
@@ -255,7 +337,7 @@ app.post('/api/sign', upload.fields([
 // Authentication middleware
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader?.split(' ')[1];
+    const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
         return res.status(401).json({ message: "Authentication token required" });
