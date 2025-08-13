@@ -12,7 +12,10 @@
     <div id="adminDashPage">
         <div style="height: 100px;"></div>
 
+
         <h1>Admin Dashboard</h1>
+
+
         <div class="formContainer">
             <h2 id="hidePayment">Ödeme Planı Oluştur</h2>
             <form id="odemeForm" style="max-width: 600px;display: flex;flex-direction: column;">
@@ -39,10 +42,48 @@
             <div id="linkSonucu" style="margin-top: 20px; font-weight: bold;"></div>
         </div>
         <div id="signedDocumentsList"></div>
+        <div style="display: block; height: auto;"> </div>
+        <button onclick="logout()"
+            style="background: #e74c3c; padding: 20px; margin-top: 20px; border: none; border-radius: 8px; color: white; cursor: pointer;">Çıkış
+            Yap</button>
     </div>
     <!-- Scripts -->
-    <script src="/planCreate.js"></script>
-    <script src="/signedDocuments.js"></script>
+    <script>
+        // Authentication check
+        (function () {
+            console.log('Admin dashboard authentication script running...');
+            const token = localStorage.getItem('token');
+            console.log('Token from localStorage:', token ? token.substring(0, 20) + '...' : 'No token found');
+
+            if (!token) {
+                console.log('No token found, redirecting to login');
+                window.location.href = '/login';
+                return;
+            }
+
+            console.log('Token found, user authenticated successfully');
+
+            // Add token to all fetch requests
+            const originalFetch = window.fetch;
+            window.fetch = function (url, options = {}) {
+                if (!options.headers) {
+                    options.headers = {};
+                }
+                options.headers['Authorization'] = `Bearer ${token}`;
+                console.log('Adding Authorization header to fetch request:', url);
+                return originalFetch(url, options);
+            };
+
+            // Make logout function globally available
+            window.logout = function () {
+                console.log('Logout called, clearing token');
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+            };
+        })();
+    </script>
+    <script src="/public/planCreate.js"></script>
+    <script src="/public/signedDocuments.js"></script>
 </body>
 
 </html>

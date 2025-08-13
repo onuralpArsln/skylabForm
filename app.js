@@ -157,6 +157,8 @@ app.get('/css-test', (req, res) => {
     `);
 });
 
+
+
 // Serve HTML page
 app.get('/form/:formid', async (req, res) => {
     const formid = req.params.formid;
@@ -201,6 +203,11 @@ app.get('/', (req, res) => {
         res.sendFile(path.join(__dirname, 'views', 'adminDash.html'));
     });
 
+});
+
+// Add direct route for admin dashboard - always serve the dashboard, let client handle auth
+app.get('/adminDash.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'adminDash.html'));
 });
 
 // API route
