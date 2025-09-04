@@ -245,7 +245,7 @@ app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
     const { kayitadi, course } = req.body;
     const file = req.file;
 
-    console.log('Body content:', req.body);
+    console.log('Payment plan request received:', { kayitadi, course, hasFile: !!file });
 
 
     // Generate unique payment ID using timestamp

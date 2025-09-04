@@ -23,6 +23,22 @@ document.getElementById("odemeForm").addEventListener("submit", async function (
             body: formData
         });
 
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const responseText = await response.text();
+            console.error('Non-JSON response:', responseText);
+            throw new Error(`Expected JSON but got: ${contentType}. Response: ${responseText.substring(0, 100)}...`);
+        }
+
         const data = await response.json();
 
         if (data && data.link) {
@@ -32,6 +48,7 @@ document.getElementById("odemeForm").addEventListener("submit", async function (
             document.getElementById("linkSonucu").textContent = "Bir link cevabı alınamadı.";
         }
     } catch (error) {
+        console.error('Full error:', error);
         document.getElementById("linkSonucu").textContent = "Bir hata oluştu: " + error.message;
     } finally {
         gonderButonu.disabled = false;
