@@ -68,6 +68,11 @@ app.use('/style', express.static(path.join(__dirname, 'style')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
+// Direct favicon route for better browser compatibility
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, 'images', 'logo.ico'));
+});
+
 // Debug middleware to log static file requests
 app.use((req, res, next) => {
     if (req.path.startsWith('/style/') || req.path.startsWith('/images/') || req.path.startsWith('/public/')) {
