@@ -60,14 +60,15 @@ document.getElementById("payPlan").addEventListener("change", function () {
 });
 
 document.getElementById('kayitadi').addEventListener('input', function () {
-    this.value = capitalizeWords(this.value.toLowerCase());
+    this.value = capitalizeWords(this.value.toLocaleLowerCase('tr-TR'));
 });
 
 document.getElementById('course').addEventListener('input', function () {
-    this.value = capitalizeWords(this.value.toLowerCase());
+    this.value = capitalizeWords(this.value.toLocaleLowerCase('tr-TR'));
 });
 
 
 function capitalizeWords(str) {
-    return str.replace(/\b\w/g, char => char.toUpperCase());
+    // Capitalize only after actual spaces, not after any characters
+    return str.replace(/(?:^| )\w/g, char => char.toLocaleUpperCase('tr-TR'));
 }

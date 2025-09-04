@@ -7,7 +7,7 @@ const helmet = require('helmet');
 
 const multer = require('multer');
 // Multer memory storage with size limits to avoid memory pressure
-const upload = multer({ limits: { fileSize: 10 * 1024 * 1024, files: 5 } });
+const upload = multer({ limits: { fileSize: 15 * 1024 * 1024, files: 5 } });
 
 require('dotenv').config();
 const mongo_uri = process.env.MONGO_URI
@@ -54,8 +54,8 @@ app.use(helmet({
 }));
 
 // Middleware to parse JSON/body with sensible limits
-app.use(express.json({ limit: '2mb' }));
-app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 // HTTP request logging
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
@@ -274,14 +274,19 @@ app.post('/api/paymentplan', upload.single('payPlan'), async (req, res) => {
         });
 
         console.log(`1 document inserted.`);
-    } catch (err) {
-        console.error(err);
-    }
 
-    res.json({
-        message: 'Ödeme planı başarıyla alındı!',
-        link: link
-    });
+        return res.json({
+            success: true,
+            message: 'Ödeme planı başarıyla alındı!',
+            link: link
+        });
+    } catch (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({
+            success: false,
+            message: 'Ödeme planı kaydedilirken hata oluştu'
+        });
+    }
 });
 
 

@@ -267,13 +267,32 @@ document.getElementById('dataForm').addEventListener('submit', async function (e
             body: formData
         });
 
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Server returned non-JSON response:', text);
+            alert('Sunucu hatası: Geçersiz yanıt formatı');
+            return;
+        }
+
         const data = await response.json();
 
+        if (data.success) {
+            alert('Belge başarıyla imzalandı!');
+            // Optionally redirect or show success message
+        } else {
+            alert('Hata: ' + (data.message || 'Bilinmeyen hata'));
+        }
+
     } catch (error) {
-        console.log("hata hata")
+        console.error('Form submission error:', error);
+        alert('Bir hata oluştu: ' + error.message);
     } finally {
         gonderButonu.disabled = false;
-
     }
 
 });
