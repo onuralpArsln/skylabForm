@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Image Compression</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .debug-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Debug Image Compression</h1>
+    <p>This page helps debug compression issues. Check the console and logs below for detailed error information.</p>
+
+    <div class="debug-container">
+        <h3>Test Image Upload</h3>
+        <input type="file" id="testImage" accept="image/*">
+        <button onclick="testCompression()" id="testBtn">Test Compression</button>
+        <button onclick="clearLog()">Clear Log</button>
+
+        <div id="status"></div>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script src="imageCompression.js"></script>
+    <script>
+        let logElement = document.getElementById('log');
+        let statusElement = document.getElementById('status');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}\n`;
+            logElement.textContent += logMessage;
+            logElement.scrollTop = logElement.scrollHeight;
+
+            if (type === 'error') {
+                console.error(message);
+            } else if (type === 'success') {
+                console.log(message);
+            } else {
+                console.info(message);
+            }
+        }
+
+        function clearLog() {
+            logElement.textContent = '';
+            statusElement.innerHTML = '';
+        }
+
+        function setStatus(message, type = 'info') {
+            statusElement.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        async function testCompression() {
+            const fileInput = document.getElementById('testImage');
+            const testBtn = document.getElementById('testBtn');
+
+            if (!fileInput.files[0]) {
+                setStatus('Please select an image first', 'error');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            testBtn.disabled = true;
+            clearLog();
+
+            log(`Starting compression test for: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+
+            try {
+                // Test basic file properties
+                log(`File type: ${file.type}`);
+                log(`File size: ${file.size} bytes`);
+                log(`File last modified: ${new Date(file.lastModified).toLocaleString()}`);
+
+                // Test image loading
+                log('Loading image...');
+                const img = new Image();
+                img.onload = () => {
+                    log(`Image loaded successfully: ${img.width}x${img.height}`);
+                };
+                img.onerror = () => {
+                    log('Failed to load image', 'error');
+                };
+                img.src = URL.createObjectURL(file);
+
+                // Test compression
+                log('Starting compression...');
+                const compressedFile = await window.imageCompressor.compressImage(file, (progress) => {
+                    log(`Progress: ${(progress.size / 1024 / 1024).toFixed(2)} MB, Quality: ${Math.round(progress.quality * 100)}%, Dimensions: ${progress.dimensions || 'N/A'}`);
+                });
+
+                log(`Compression completed: ${compressedFile.name} (${(compressedFile.size / 1024 / 1024).toFixed(2)} MB)`);
+
+                const reduction = Math.round(((file.size - compressedFile.size) / file.size) * 100);
+                const success = compressedFile.size <= 1024 * 1024;
+
+                if (success) {
+                    setStatus(`✅ Compression successful! Reduced by ${reduction}%`, 'success');
+                } else {
+                    setStatus(`⚠️ Compression completed but file is still ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`, 'error');
+                }
+
+            } catch (error) {
+                log(`Compression failed: ${error.message}`, 'error');
+                log(`Error stack: ${error.stack}`, 'error');
+                setStatus(`❌ Compression failed: ${error.message}`, 'error');
+            } finally {
+                testBtn.disabled = false;
+            }
+        }
+
+        // Test compression library availability
+        window.addEventListener('load', () => {
+            if (window.imageCompressor) {
+                log('✅ Image compression library loaded successfully');
+            } else {
+                log('❌ Image compression library not found', 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>

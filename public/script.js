@@ -265,11 +265,12 @@ document.getElementById('dataForm').addEventListener('submit', async function (e
             });
 
             if (progressElement) {
-                window.imageCompressor.showResult("compressionProgressFront", originalKimlikFront.size, kimlikFront.size, true);
+                const success = kimlikFront.size <= 1024 * 1024;
+                window.imageCompressor.showResult("compressionProgressFront", originalKimlikFront.size, kimlikFront.size, success);
             }
         } catch (error) {
             console.error('Front ID compression failed:', error);
-            alert('Kimlik ön yüz sıkıştırılırken hata oluştu. Lütfen daha küçük bir resim seçin.');
+            alert('Kimlik ön yüz sıkıştırılırken hata oluştu: ' + error.message + '. Lütfen daha küçük bir resim seçin.');
             gonderButonu.disabled = false;
             return;
         }
@@ -289,11 +290,12 @@ document.getElementById('dataForm').addEventListener('submit', async function (e
             });
 
             if (progressElement) {
-                window.imageCompressor.showResult("compressionProgressBack", originalKimlikBack.size, kimlikBack.size, true);
+                const success = kimlikBack.size <= 1024 * 1024;
+                window.imageCompressor.showResult("compressionProgressBack", originalKimlikBack.size, kimlikBack.size, success);
             }
         } catch (error) {
             console.error('Back ID compression failed:', error);
-            alert('Kimlik arka yüz sıkıştırılırken hata oluştu. Lütfen daha küçük bir resim seçin.');
+            alert('Kimlik arka yüz sıkıştırılırken hata oluştu: ' + error.message + '. Lütfen daha küçük bir resim seçin.');
             gonderButonu.disabled = false;
             return;
         }

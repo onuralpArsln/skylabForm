@@ -477,6 +477,7 @@ async function startServer() {
         const HOST = process.env.HOST || '0.0.0.0';
         httpServer = app.listen(PORT, HOST, () => {
             console.log(`Server listening on http://${HOST}:${PORT}`);
+            console.log(`Server listening on http://localhost:${PORT}`);
         });
 
         httpServer.on('error', (err) => {

@@ -1,250 +1,236 @@
 /**
  * Image Compression Utility
- * Automatically compresses images to fit within 1MB size limit
+ * Always compresses images to < 1MB while preserving aspect ratio
  */
 
 class ImageCompressor {
     constructor() {
         this.maxSizeBytes = 1024 * 1024; // 1MB
-        this.maxWidth = 1920; // Maximum width for compression
-        this.maxHeight = 1080; // Maximum height for compression
-        this.quality = 0.9; // Initial quality (0.1 to 1.0) - start higher
-        this.minQuality = 0.05; // Lower minimum quality for better compression
-        this.qualityStep = 0.15; // Smaller steps for more precise control
-        this.maxAttempts = 15; // More attempts for better results
+        this.maxWidth = 1920;            // Default bounding box
+        this.maxHeight = 1080;
+        this.startQuality = 0.9;
+        this.minQuality = 0.05;
+        this.qualityStep = 0.1;
     }
 
     /**
-     * Compress an image file to fit within the size limit
-     * @param {File} file - The image file to compress
-     * @param {Function} onProgress - Optional progress callback
-     * @returns {Promise<File>} - Compressed file
+     * Main method
      */
     async compressImage(file, onProgress = null) {
-        return new Promise((resolve, reject) => {
-            // Check if file is already small enough
+        try {
             if (file.size <= this.maxSizeBytes) {
-                resolve(file);
-                return;
+                return file; // already small enough
             }
 
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
+            const img = await this.loadImage(file);
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
 
-            img.onload = () => {
+            // Initial scale
+            let { width, height } = this.calculateDimensions(img.width, img.height, file.size);
+            canvas.width = width;
+            canvas.height = height;
+
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // First pass with iterative quality reduction
+            let compressedFile = await this.compressLoop(ctx, img, file, onProgress);
+
+            // If still too big → fallback to aggressive compression
+            if (compressedFile && compressedFile.size > this.maxSizeBytes) {
                 try {
-                    // Calculate new dimensions while maintaining aspect ratio
-                    let { width, height } = this.calculateDimensions(img.width, img.height, file.size);
-
-                    // Set canvas dimensions
-                    canvas.width = width;
-                    canvas.height = height;
-
-                    // Draw and compress the image
-                    this.compressWithQuality(ctx, img, width, height, file.type, onProgress, file)
-                        .then(compressedFile => {
-                            // If compression failed to get under 1MB, try more aggressive approach
-                            if (compressedFile.size > this.maxSizeBytes) {
-                                this.aggressiveCompress(ctx, img, file, onProgress)
-                                    .then(aggressiveResult => resolve(aggressiveResult))
-                                    .catch(error => {
-                                        console.warn('Aggressive compression also failed, returning best result');
-                                        resolve(compressedFile);
-                                    });
-                            } else {
-                                resolve(compressedFile);
-                            }
-                        })
-                        .catch(error => reject(error));
-                } catch (error) {
-                    reject(error);
+                    compressedFile = await this.aggressiveCompress(ctx, img, file, onProgress);
+                } catch (aggressiveError) {
+                    console.warn('Aggressive compression failed, using best result:', aggressiveError.message);
+                    // Return the best result from the first pass
                 }
-            };
-
-            img.onerror = () => reject(new Error('Failed to load image'));
-            img.src = URL.createObjectURL(file);
-        });
-    }
-
-    /**
-     * More aggressive compression as fallback
-     */
-    async aggressiveCompress(ctx, img, file, onProgress) {
-        const originalWidth = img.width;
-        const originalHeight = img.height;
-
-        // Start with much smaller dimensions
-        let scaleFactor = Math.sqrt(this.maxSizeBytes / file.size) * 0.7;
-        let width = Math.round(originalWidth * scaleFactor);
-        let height = Math.round(originalHeight * scaleFactor);
-
-        // Ensure minimum reasonable size
-        width = Math.max(width, 200);
-        height = Math.max(height, 200);
-
-        const canvas = ctx.canvas;
-        canvas.width = width;
-        canvas.height = height;
-
-        ctx.clearRect(0, 0, width, height);
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Try with very low quality
-        const optimalMimeType = this.getOptimalMimeType(file.type);
-        const blob = await this.canvasToBlob(canvas, optimalMimeType, 0.1);
-        const compressedFile = new File([blob], 'compressed_image.jpg', { type: optimalMimeType });
-
-        if (onProgress) {
-            onProgress({
-                size: compressedFile.size,
-                quality: 0.1,
-                attempts: 0,
-                success: compressedFile.size <= this.maxSizeBytes,
-                dimensions: `${width}x${height}`,
-                action: 'Aggressive compression'
-            });
-        }
-
-        return compressedFile;
-    }
-
-    /**
-     * Calculate optimal dimensions for compression
-     */
-    calculateDimensions(originalWidth, originalHeight, targetSize = null) {
-        let width = originalWidth;
-        let height = originalHeight;
-
-        // If we have a target size, calculate more aggressive scaling
-        if (targetSize && targetSize > this.maxSizeBytes) {
-            const scaleFactor = Math.sqrt(this.maxSizeBytes / targetSize);
-            width = Math.round(width * scaleFactor);
-            height = Math.round(height * scaleFactor);
-        }
-
-        // Scale down if image is too large
-        if (width > this.maxWidth || height > this.maxHeight) {
-            const aspectRatio = width / height;
-
-            if (width > height) {
-                width = Math.min(this.maxWidth, width);
-                height = width / aspectRatio;
-            } else {
-                height = Math.min(this.maxHeight, height);
-                width = height * aspectRatio;
             }
-        }
 
-        return { width: Math.round(width), height: Math.round(height) };
+            return compressedFile || file; // Fallback to original file if compression completely fails
+
+        } catch (error) {
+            console.error('Image compression failed:', error);
+            throw new Error('Image compression failed: ' + error.message);
+        }
     }
 
     /**
-     * Compress image with iterative quality reduction and dimension scaling
+     * Iterative quality reduction + optional resizing
      */
-    async compressWithQuality(ctx, img, width, height, mimeType, onProgress, originalFile) {
-        let quality = this.quality;
-        let compressedFile;
-        let attempts = 0;
-        let currentWidth = width;
-        let currentHeight = height;
+    async compressLoop(ctx, img, file, onProgress) {
+        let quality = this.startQuality;
+        let width = ctx.canvas.width;
+        let height = ctx.canvas.height;
         let bestResult = null;
+        let attempts = 0;
 
-        while (attempts < this.maxAttempts) {
-            // Clear canvas
-            ctx.clearRect(0, 0, currentWidth, currentHeight);
+        while (attempts < 15) {
+            try {
+                ctx.canvas.width = width;
+                ctx.canvas.height = height;
+                ctx.clearRect(0, 0, width, height);
+                ctx.drawImage(img, 0, 0, width, height);
 
-            // Draw image
-            ctx.drawImage(img, 0, 0, currentWidth, currentHeight);
+                const mime = this.getOptimalMimeType(file.type);
+                const blob = await this.canvasToBlob(ctx.canvas, mime, quality);
+                const compressedFile = this.makeFile(blob, file, mime);
 
-            // Convert to blob with current quality
-            const optimalMimeType = this.getOptimalMimeType(mimeType);
-            const blob = await this.canvasToBlob(canvas, optimalMimeType, quality);
-            compressedFile = new File([blob], 'compressed_image.jpg', { type: optimalMimeType });
-
-            // Keep track of best result so far
-            if (!bestResult || compressedFile.size < bestResult.size) {
-                bestResult = compressedFile;
-            }
-
-            // Check if size is acceptable
-            if (compressedFile.size <= this.maxSizeBytes) {
-                if (onProgress) {
-                    onProgress({
-                        size: compressedFile.size,
-                        quality: quality,
-                        attempts: attempts + 1,
-                        success: true,
-                        dimensions: `${currentWidth}x${currentHeight}`
-                    });
+                if (!bestResult || compressedFile.size < bestResult.size) {
+                    bestResult = compressedFile;
                 }
-                return compressedFile;
-            }
-
-            // If we're still too large, try reducing dimensions
-            if (attempts > 3 && compressedFile.size > this.maxSizeBytes * 1.5) {
-                const scaleFactor = 0.8;
-                currentWidth = Math.round(currentWidth * scaleFactor);
-                currentHeight = Math.round(currentHeight * scaleFactor);
-
-                // Update canvas size
-                canvas.width = currentWidth;
-                canvas.height = currentHeight;
 
                 if (onProgress) {
                     onProgress({
                         size: compressedFile.size,
-                        quality: quality,
+                        quality,
+                        dimensions: `${width}x${height}`,
                         attempts: attempts + 1,
-                        success: false,
-                        dimensions: `${currentWidth}x${currentHeight}`,
-                        action: 'Reducing dimensions'
                     });
                 }
-            } else {
-                // Reduce quality for next attempt
-                quality = Math.max(quality - this.qualityStep, this.minQuality);
 
-                if (onProgress) {
-                    onProgress({
-                        size: compressedFile.size,
-                        quality: quality,
-                        attempts: attempts + 1,
-                        success: false,
-                        dimensions: `${currentWidth}x${currentHeight}`,
-                        action: 'Reducing quality'
-                    });
+                if (compressedFile.size <= this.maxSizeBytes) {
+                    return compressedFile;
                 }
+
+                // After a few attempts, start shrinking dimensions
+                if (attempts > 3 && compressedFile.size > this.maxSizeBytes * 1.5) {
+                    width = Math.max(Math.round(width * 0.8), 200);
+                    height = Math.max(Math.round(height * 0.8), 200);
+                } else {
+                    quality = Math.max(quality - this.qualityStep, this.minQuality);
+                }
+
+                attempts++;
+            } catch (error) {
+                console.error('Error in compression loop:', error);
+                // If we have a best result, return it, otherwise throw
+                if (bestResult) {
+                    return bestResult;
+                }
+                throw new Error('Compression loop failed: ' + error.message);
             }
-
-            attempts++;
         }
 
-        // If we couldn't compress enough, return the best result we achieved
-        console.warn(`Could not compress image to ${this.maxSizeBytes} bytes. Final size: ${bestResult.size} bytes`);
         return bestResult;
     }
 
     /**
-     * Convert canvas to blob with specified quality
+     * Aggressive fallback: keep shrinking until success
      */
-    canvasToBlob(canvas, mimeType, quality) {
+    async aggressiveCompress(ctx, img, file, onProgress) {
+        let width = img.width;
+        let height = img.height;
+        let quality = 0.2;
+        let attempts = 0;
+        const maxAttempts = 20; // Prevent infinite loops
+
+        while (attempts < maxAttempts) {
+            try {
+                ctx.canvas.width = width;
+                ctx.canvas.height = height;
+                ctx.clearRect(0, 0, width, height);
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const mime = this.getOptimalMimeType(file.type);
+                const blob = await this.canvasToBlob(ctx.canvas, mime, quality);
+                const compressedFile = this.makeFile(blob, file, mime);
+
+                if (onProgress) {
+                    onProgress({
+                        size: compressedFile.size,
+                        quality,
+                        dimensions: `${width}x${height}`,
+                        action: "Aggressive",
+                        attempts: attempts + 1
+                    });
+                }
+
+                if (compressedFile.size <= this.maxSizeBytes) {
+                    return compressedFile;
+                }
+
+                // Stop if we've reached minimum size and quality
+                if (width <= 200 && height <= 200 && quality <= this.minQuality) {
+                    console.warn('Reached minimum size and quality limits');
+                    return compressedFile;
+                }
+
+                // Reduce dimensions and quality
+                width = Math.max(Math.round(width * 0.8), 200);
+                height = Math.max(Math.round(height * 0.8), 200);
+                quality = Math.max(quality - 0.05, this.minQuality);
+                attempts++;
+
+            } catch (error) {
+                console.error('Error in aggressive compression:', error);
+                throw new Error('Compression failed: ' + error.message);
+            }
+        }
+
+        // If we've exhausted all attempts, return the last result
+        console.warn('Aggressive compression reached maximum attempts');
+        throw new Error('Could not compress image to target size after maximum attempts');
+    }
+
+    /**
+     * Scale dimensions to fit max box and approximate target size
+     */
+    calculateDimensions(width, height, fileSize) {
+        let scaleFactor = 1;
+
+        if (fileSize > this.maxSizeBytes) {
+            scaleFactor = Math.sqrt(this.maxSizeBytes / fileSize);
+        }
+
+        if (width * scaleFactor > this.maxWidth) {
+            scaleFactor = this.maxWidth / width;
+        }
+        if (height * scaleFactor > this.maxHeight) {
+            scaleFactor = Math.min(scaleFactor, this.maxHeight / height);
+        }
+
+        return {
+            width: Math.max(Math.round(width * scaleFactor), 200),
+            height: Math.max(Math.round(height * scaleFactor), 200),
+        };
+    }
+
+    /**
+     * Convert canvas to Blob
+     */
+    canvasToBlob(canvas, mime, quality) {
         return new Promise((resolve) => {
-            // For better compression, convert all images to JPEG
-            const outputMimeType = mimeType === 'image/png' ? 'image/jpeg' : mimeType;
-            canvas.toBlob(resolve, outputMimeType, quality);
+            canvas.toBlob(resolve, mime, quality);
         });
     }
 
     /**
-     * Get optimal MIME type for compression
+     * Pick better format for compression
      */
     getOptimalMimeType(originalMimeType) {
-        // JPEG generally compresses better than PNG for photos
-        if (originalMimeType === 'image/png' || originalMimeType === 'image/webp') {
-            return 'image/jpeg';
-        }
+        if (originalMimeType === "image/png") return "image/jpeg";
         return originalMimeType;
+    }
+
+    /**
+     * Create a File with proper name
+     */
+    makeFile(blob, originalFile, mime) {
+        const ext = mime.split("/")[1];
+        const name = originalFile.name.replace(/\.[^/.]+$/, "") + `_compressed.${ext}`;
+        return new File([blob], name, { type: mime });
+    }
+
+    /**
+     * Load image from File
+     */
+    loadImage(file) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error('Failed to load image'));
+            img.src = URL.createObjectURL(file);
+        });
     }
 
     /**
@@ -300,8 +286,4 @@ class ImageCompressor {
 
 // Create global instance
 window.imageCompressor = new ImageCompressor();
-
-// Utility function for easy use
-window.compressImage = function (file, onProgress) {
-    return window.imageCompressor.compressImage(file, onProgress);
-};
+window.compressImage = (file, onProgress) => window.imageCompressor.compressImage(file, onProgress);

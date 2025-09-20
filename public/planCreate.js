@@ -32,11 +32,12 @@ document.getElementById("odemeForm").addEventListener("submit", async function (
 
             // Show compression result
             if (progressElement) {
-                window.imageCompressor.showResult("compressionProgress", originalImageFile.size, imageFile.size, true);
+                const success = imageFile.size <= 1024 * 1024;
+                window.imageCompressor.showResult("compressionProgress", originalImageFile.size, imageFile.size, success);
             }
         } catch (error) {
             console.error('Image compression failed:', error);
-            alert('Resim sıkıştırılırken hata oluştu. Lütfen daha küçük bir resim seçin.');
+            alert('Resim sıkıştırılırken hata oluştu: ' + error.message + '. Lütfen daha küçük bir resim seçin.');
             gonderButonu.disabled = false;
             yukleniyorAnimasyon.style.display = "none";
             return;
