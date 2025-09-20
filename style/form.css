@@ -146,7 +146,7 @@ button:hover {
   border-radius: 4px;
   /* display: none; */
   max-width: 900px;
-  max-height: 450px;
+  max-height: 400px;
 }
 
 .page-break {
@@ -269,5 +269,27 @@ button:hover {
     width: 0px;
     height: 0px;
     display: none;
+  }
+
+  /* Ensure kimlikfotos and page end kase stay together on same page */
+  .pageFour {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+  }
+
+  /* Specifically target the kimlikfoto containers and pageEnd to stay together */
+  .pageFour .kimlikfoto,
+  .pageFour .pageEnd {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+  }
+
+  /* Ensure the last pageEnd doesn't break from kimlikfotos */
+  .pageFour .pageEnd:last-child {
+    page-break-before: avoid;
+    break-before: avoid;
+    -webkit-column-break-before: avoid;
   }
 }
