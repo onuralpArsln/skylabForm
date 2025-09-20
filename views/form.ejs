@@ -406,9 +406,24 @@
         <button id="sign" type="submit">İmzala</button>
     </form>
 
+    <!-- Feedback Messages Container -->
+    <div id="feedbackContainer"
+        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; max-width: 500px; width: 90%; padding: 30px; border-radius: 12px; text-align: center; font-family: Arial, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid;">
+        <div id="feedbackIcon" style="font-size: 48px; margin-bottom: 15px;"></div>
+        <div id="feedbackTitle" style="font-size: 24px; font-weight: bold; margin-bottom: 10px;"></div>
+        <div id="feedbackMessage" style="font-size: 16px; margin-bottom: 15px; line-height: 1.5;"></div>
+        <button id="feedbackClose"
+            style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">Tamam</button>
+    </div>
+
+    <!-- Overlay for feedback -->
+    <div id="feedbackOverlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998;">
+    </div>
+
     <pre id="response"></pre>
     <script src="/public/imageCompression.js"></script>
-    <script src="/script.js"></script>
+    <script src="/public/script.js"></script>
 </body>
 
 </html>
@@ -417,16 +432,30 @@
 <script>
     // Make user data accessible to external script
     window.agreementNumber = "<%= agreementNumber %>";
-    // Save form data to localStorage on change
+    // Save form data to localStorage on change (excluding file inputs)
     document.querySelectorAll('#dataForm input, #dataForm textarea, #dataForm select').forEach(element => {
+        // Skip file inputs as they cannot be saved/restored
+        if (element.type === 'file') {
+            return;
+        }
+
         element.addEventListener('input', () => {
-            localStorage.setItem(element.name, element.value);
+            if (element.type === 'checkbox') {
+                localStorage.setItem(element.name, element.checked.toString());
+            } else {
+                localStorage.setItem(element.name, element.value);
+            }
         });
     });
 
-    // Load saved form data on page load
+    // Load saved form data on page load (excluding file inputs)
     window.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('#dataForm input, #dataForm textarea, #dataForm select').forEach(element => {
+            // Skip file inputs as they cannot be programmatically set
+            if (element.type === 'file') {
+                return;
+            }
+
             const savedValue = localStorage.getItem(element.name);
             if (savedValue !== null) {
                 if (element.type === 'checkbox') {
@@ -437,6 +466,123 @@
             }
         });
     });
+
+    // Sync all 'terms' checkboxes when any one is clicked
+    document.addEventListener('DOMContentLoaded', () => {
+        const termsCheckboxes = document.querySelectorAll('input[name="terms"]');
+
+        termsCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const isChecked = checkbox.checked;
+
+                // Update all other terms checkboxes to match the clicked one
+                termsCheckboxes.forEach(otherCheckbox => {
+                    if (otherCheckbox !== checkbox) {
+                        otherCheckbox.checked = isChecked;
+                        // Also save to localStorage
+                        localStorage.setItem(otherCheckbox.name, isChecked.toString());
+                    }
+                });
+            });
+        });
+    });
+
+    // Sync TC number input with all tcnoimza divs
+    document.addEventListener('DOMContentLoaded', () => {
+        const tcnoInput = document.querySelector('input[name="tcno"]');
+        const tcnoimzaDivs = document.querySelectorAll('.tcnoimza');
+
+        if (tcnoInput && tcnoimzaDivs.length > 0) {
+            // Function to update all tcnoimza divs
+            const updateTcnoimzaDivs = () => {
+                const tcnoValue = tcnoInput.value;
+                tcnoimzaDivs.forEach(div => {
+                    div.textContent = tcnoValue;
+                });
+            };
+
+            // Update on input change
+            tcnoInput.addEventListener('input', updateTcnoimzaDivs);
+
+            // Update on page load if there's already a value
+            updateTcnoimzaDivs();
+        }
+    });
+
+    // Enhanced Feedback System
+    function showFeedback(type, title, message) {
+        const container = document.getElementById('feedbackContainer');
+        const overlay = document.getElementById('feedbackOverlay');
+        const icon = document.getElementById('feedbackIcon');
+        const titleEl = document.getElementById('feedbackTitle');
+        const messageEl = document.getElementById('feedbackMessage');
+
+        if (type === 'success') {
+            container.style.backgroundColor = '#d4edda';
+            container.style.borderColor = '#c3e6cb';
+            container.style.color = '#155724';
+            icon.textContent = '✅';
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+        } else if (type === 'error') {
+            container.style.backgroundColor = '#f8d7da';
+            container.style.borderColor = '#f5c6cb';
+            container.style.color = '#721c24';
+            icon.textContent = '❌';
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+        } else if (type === 'warning') {
+            container.style.backgroundColor = '#fff3cd';
+            container.style.borderColor = '#ffeaa7';
+            container.style.color = '#856404';
+            icon.textContent = '⚠️';
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+        } else if (type === 'info') {
+            container.style.backgroundColor = '#d1ecf1';
+            container.style.borderColor = '#bee5eb';
+            container.style.color = '#0c5460';
+            icon.textContent = 'ℹ️';
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+        }
+
+        // Show overlay and container
+        overlay.style.display = 'block';
+        container.style.display = 'block';
+
+        // Prevent body scroll when modal is open
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideFeedback() {
+        document.getElementById('feedbackContainer').style.display = 'none';
+        document.getElementById('feedbackOverlay').style.display = 'none';
+        // Restore body scroll
+        document.body.style.overflow = 'auto';
+    }
+
+    // Close feedback when clicking the button or overlay
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('feedbackClose').addEventListener('click', hideFeedback);
+        document.getElementById('feedbackOverlay').addEventListener('click', hideFeedback);
+
+        // Prevent closing when clicking on the modal content itself
+        document.getElementById('feedbackContainer').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    });
+
+    // Test function - you can call this in browser console: testFeedback('success')
+    window.testFeedback = function (type = 'success') {
+        const messages = {
+            success: { title: 'Test Başarılı!', message: 'Bu bir test mesajıdır. Feedback sistemi çalışıyor!' },
+            error: { title: 'Test Hatası!', message: 'Bu bir hata test mesajıdır. Feedback sistemi çalışıyor!' },
+            warning: { title: 'Test Uyarısı!', message: 'Bu bir uyarı test mesajıdır. Feedback sistemi çalışıyor!' },
+            info: { title: 'Test Bilgisi!', message: 'Bu bir bilgi test mesajıdır. Feedback sistemi çalışıyor!' }
+        };
+        showFeedback(type, messages[type].title, messages[type].message);
+    };
 </script>
 
 <!-- http://localhost:3000/form/20250601093526  -->

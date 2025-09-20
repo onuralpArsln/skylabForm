@@ -221,6 +221,27 @@ app.post('/api/data', (req, res) => {
     res.json({ message: 'Data received!', data: req.body });
 });
 
+// Test database connection endpoint
+app.get('/api/test-db', async (req, res) => {
+    try {
+        console.log('🧪 Testing database connection...');
+        const users = db.collection("users");
+        const count = await users.countDocuments();
+        console.log('✅ Database connection successful. Document count:', count);
+        res.json({
+            success: true,
+            message: 'Database connection successful',
+            documentCount: count
+        });
+    } catch (err) {
+        console.error('❌ Database test failed:', err);
+        res.status(500).json({
+            success: false,
+            message: 'Database connection failed: ' + err.message
+        });
+    }
+});
+
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
     console.log(req.body)
@@ -294,8 +315,21 @@ app.post('/api/sign', upload.fields([
     { name: 'kimlikFront', maxCount: 1 },
     { name: 'kimlikBack', maxCount: 1 }
 ]), async (req, res) => {
+    console.log('🚀 /api/sign endpoint called');
     console.log('📝 Form Fields:', req.body);
     console.log('📎 Uploaded Files:', req.files);
+
+    // Check if required fields are present
+    const requiredFields = ['username', 'agreementNumber', 'tcno', 'email', 'adres', 'birthdate', 'phone'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+
+    if (missingFields.length > 0) {
+        console.error('❌ Missing required fields:', missingFields);
+        return res.status(400).json({
+            success: false,
+            message: `Missing required fields: ${missingFields.join(', ')}`
+        });
+    }
 
     const kimlikFront = req.files['kimlikFront'] ? req.files['kimlikFront'][0] : null;
     const kimlikBack = req.files['kimlikBack'] ? req.files['kimlikBack'][0] : null;
@@ -315,34 +349,62 @@ app.post('/api/sign', upload.fields([
 
 
     try {
+        console.log('🔗 Connecting to database...');
         const users = db.collection("users");
 
+        console.log('🔍 Searching for document with formid:', req.body.agreementNumber);
 
+        // First, check if the document exists
+        const existingDoc = await users.findOne({ formid: req.body.agreementNumber });
+        console.log('📄 Existing document found:', existingDoc ? 'YES' : 'NO');
 
+        if (existingDoc) {
+            console.log('📋 Existing document details:', {
+                kayitadi: existingDoc.kayitadi,
+                course: existingDoc.course,
+                createdAt: existingDoc.createdAt,
+                hasSignedAt: !!existingDoc.signedAt
+            });
+        }
+
+        const updateData = {
+            personName: req.body.username,
+            personMail: req.body.email,
+            personTC: req.body.tcno,
+            personAdres: req.body.adres,
+            personBirthDate: req.body.birthdate,
+            personPhone: req.body.phone,
+            kimlikFront: kimlikFrontImage,
+            kimlikBack: kimlikBackImage,
+            signedAt: new Date()
+        };
+
+        console.log('📝 Update data prepared:', {
+            personName: updateData.personName,
+            personMail: updateData.personMail,
+            personTC: updateData.personTC,
+            hasKimlikFront: !!updateData.kimlikFront,
+            hasKimlikBack: !!updateData.kimlikBack,
+            signedAt: updateData.signedAt
+        });
 
         const result = await users.updateOne(
             { formid: req.body.agreementNumber }, // Filter condition
-            {
-                $set: {
-                    personName: req.body.username,
-                    personMail: req.body.email,
-                    personTC: req.body.tcno,
-                    personAdres: req.body.adres,
-                    personBirthDate: req.body.birthdate,
-                    personPhone: req.body.phone,
-                    kimlikFront: kimlikFrontImage,
-                    kimlikBack: kimlikBackImage,
-                    signedAt: new Date()
-                }
-            },
+            { $set: updateData },
             { upsert: true } // optional: creates a new doc if none found
         );
 
-        console.log("Update result:", result);
+        console.log("✅ Database update result:", {
+            acknowledged: result.acknowledged,
+            modifiedCount: result.modifiedCount,
+            upsertedCount: result.upsertedCount,
+            matchedCount: result.matchedCount
+        });
+
         return res.status(200).json({ success: true, message: 'Document signed successfully' });
     } catch (err) {
-        console.error("Database error:", err);
-        return res.status(500).json({ success: false, message: 'Failed to sign document' });
+        console.error("❌ Database error:", err);
+        return res.status(500).json({ success: false, message: 'Failed to sign document: ' + err.message });
     }
 
 
