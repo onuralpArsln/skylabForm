@@ -30,6 +30,7 @@
 
                 <label for="payPlan">Ödeme Planı</label>
                 <input type="file" id="payPlan" name="payPlan" accept="image/*" required />
+                <div id="compressionProgress"></div>
 
                 <img id="imagePreview" class="file-preview" />
 
@@ -82,6 +83,7 @@
             };
         })();
     </script>
+    <script src="/public/imageCompression.js"></script>
     <script src="/public/planCreate.js"></script>
     <script src="/public/signedDocuments.js"></script>
 </body>

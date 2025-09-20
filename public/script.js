@@ -244,8 +244,60 @@ document.getElementById('dataForm').addEventListener('submit', async function (e
     }
 
     // File inputs
-    const kimlikFront = document.getElementById("kimlik").files[0];
-    const kimlikBack = document.getElementById("kimlik2").files[0];
+    const originalKimlikFront = document.getElementById("kimlik").files[0];
+    const originalKimlikBack = document.getElementById("kimlik2").files[0];
+
+    let kimlikFront = originalKimlikFront;
+    let kimlikBack = originalKimlikBack;
+
+    // Compress images if they're larger than 1MB
+    if (originalKimlikFront && originalKimlikFront.size > 1024 * 1024) {
+        try {
+            const progressElement = document.getElementById("compressionProgressFront");
+            if (progressElement) {
+                progressElement.innerHTML = '<div style="color: #666; font-size: 12px;">Kimlik ön yüz sıkıştırılıyor...</div>';
+            }
+
+            kimlikFront = await window.imageCompressor.compressImage(originalKimlikFront, (progress) => {
+                if (progressElement) {
+                    window.imageCompressor.showProgress("compressionProgressFront", progress);
+                }
+            });
+
+            if (progressElement) {
+                window.imageCompressor.showResult("compressionProgressFront", originalKimlikFront.size, kimlikFront.size, true);
+            }
+        } catch (error) {
+            console.error('Front ID compression failed:', error);
+            alert('Kimlik ön yüz sıkıştırılırken hata oluştu. Lütfen daha küçük bir resim seçin.');
+            gonderButonu.disabled = false;
+            return;
+        }
+    }
+
+    if (originalKimlikBack && originalKimlikBack.size > 1024 * 1024) {
+        try {
+            const progressElement = document.getElementById("compressionProgressBack");
+            if (progressElement) {
+                progressElement.innerHTML = '<div style="color: #666; font-size: 12px;">Kimlik arka yüz sıkıştırılıyor...</div>';
+            }
+
+            kimlikBack = await window.imageCompressor.compressImage(originalKimlikBack, (progress) => {
+                if (progressElement) {
+                    window.imageCompressor.showProgress("compressionProgressBack", progress);
+                }
+            });
+
+            if (progressElement) {
+                window.imageCompressor.showResult("compressionProgressBack", originalKimlikBack.size, kimlikBack.size, true);
+            }
+        } catch (error) {
+            console.error('Back ID compression failed:', error);
+            alert('Kimlik arka yüz sıkıştırılırken hata oluştu. Lütfen daha küçük bir resim seçin.');
+            gonderButonu.disabled = false;
+            return;
+        }
+    }
 
     const formData = new FormData();
     formData.append("username", username);

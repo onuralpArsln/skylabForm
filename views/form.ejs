@@ -365,6 +365,7 @@
             <div class="form-group formBlock  ">
                 <label for="kimlik">Kimlik Ön Yüz</label>
                 <input type="file" id="kimlik" name="kimlik" accept="image/*" required />
+                <div id="compressionProgressFront"></div>
             </div>
             <div class="kimlikfoto">
 
@@ -374,6 +375,7 @@
             <div class="form-group formBlock">
                 <label for="kimlik2">Kimlik Arka Yüz</label>
                 <input type="file" id="kimlik2" name="kimlik2" accept="image/*" required />
+                <div id="compressionProgressBack"></div>
             </div>
             <div class="kimlikfoto">
                 <img id="imagePreviewkimlik2" class="file-preview" />
@@ -405,6 +407,7 @@
     </form>
 
     <pre id="response"></pre>
+    <script src="/public/imageCompression.js"></script>
     <script src="/script.js"></script>
 </body>
 

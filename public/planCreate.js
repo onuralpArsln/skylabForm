@@ -10,8 +10,39 @@ document.getElementById("odemeForm").addEventListener("submit", async function (
 
     // get data
     const kayitadi = document.getElementById("kayitadi").value;
-    const imageFile = document.getElementById("payPlan").files[0];
+    const originalImageFile = document.getElementById("payPlan").files[0];
     const courseName = document.getElementById("course").value;
+
+    let imageFile = originalImageFile;
+
+    // Compress image if it's larger than 1MB
+    if (originalImageFile && originalImageFile.size > 1024 * 1024) {
+        try {
+            // Show compression progress
+            const progressElement = document.getElementById("compressionProgress");
+            if (progressElement) {
+                progressElement.innerHTML = '<div style="color: #666; font-size: 12px;">Resim sıkıştırılıyor...</div>';
+            }
+
+            imageFile = await window.imageCompressor.compressImage(originalImageFile, (progress) => {
+                if (progressElement) {
+                    window.imageCompressor.showProgress("compressionProgress", progress);
+                }
+            });
+
+            // Show compression result
+            if (progressElement) {
+                window.imageCompressor.showResult("compressionProgress", originalImageFile.size, imageFile.size, true);
+            }
+        } catch (error) {
+            console.error('Image compression failed:', error);
+            alert('Resim sıkıştırılırken hata oluştu. Lütfen daha küçük bir resim seçin.');
+            gonderButonu.disabled = false;
+            yukleniyorAnimasyon.style.display = "none";
+            return;
+        }
+    }
+
     const formData = new FormData();
     formData.append("kayitadi", kayitadi);
     formData.append("payPlan", imageFile);
